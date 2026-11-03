@@ -1,0 +1,42 @@
+<dialog class="cart-dialog" aria-labelledby="cart-dialog-title">
+  <div class="cart-dialog-content">
+    <header class="cart-dialog-heading">
+      <div>
+        <h2 id="cart-dialog-title">Thanh toán nhanh</h2>
+        <p class="cart-dialog-count">0 sản phẩm</p>
+      </div>
+      <button class="cart-close" type="button" aria-label="Đóng giỏ hàng">×</button>
+    </header>
+    <div class="cart-dialog-scroll">
+      <h3 class="cart-section-title">Đơn hàng (<span class="cart-line-count">0</span>)</h3>
+      <div class="cart-items" aria-live="polite"></div>
+      <p class="cart-empty">Giỏ hàng đang trống. Hãy chọn sản phẩm bạn yêu thích.</p>
+      <div class="cart-total"><span>Tạm tính</span><strong>0 ₫</strong></div>
+      <form class="checkout-form">
+        <div class="checkout-login-required" hidden>
+          <p>Vui lòng đăng nhập hoặc tạo tài khoản để tiếp tục mua hàng. Giỏ hàng của bạn vẫn được lưu lại.</p>
+          <a class="checkout-auth-link checkout-login-link" href="/login">Đăng nhập để mua hàng</a>
+          <a class="checkout-register-link" href="/register">Chưa có tài khoản? Đăng ký ngay</a>
+        </div>
+        <div class="checkout-fields">
+          <h3>Phương thức thanh toán</h3>
+          <label class="checkout-payment-option">
+            <input type="radio" name="paymentMethod" value="COD" checked>
+            <span><strong>Tiền mặt / COD</strong><small>Thanh toán khi nhận hàng</small></span>
+          </label>
+          <p class="checkout-payment-note">Thanh toán khi nhận hàng (COD). Liên hệ hotline cửa hàng nếu cần hỗ trợ đặt hàng.</p>
+          <h3 class="checkout-customer-title">Thông tin nhận hàng</h3>
+          <label>Họ và tên<input name="customerName" maxlength="120" autocomplete="name" required></label>
+          <label>Số điện thoại<input name="phoneNumber" type="tel" maxlength="30" autocomplete="tel" required></label>
+          <label>Địa chỉ giao hàng<textarea name="shippingAddress" maxlength="500" autocomplete="street-address" rows="2" required></textarea></label>
+          <label class="checkout-terms">
+            <input name="agreeTerms" type="checkbox" required>
+            <span>Tôi đã đọc và đồng ý với <a href="/#terms">điều khoản sử dụng</a> và <a href="/#privacy">chính sách bảo vệ thông tin cá nhân</a>.</span>
+          </label>
+          <p class="checkout-error" role="alert" hidden></p>
+          <button class="checkout-submit" type="submit">Đặt hàng <span>→</span></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</dialog>

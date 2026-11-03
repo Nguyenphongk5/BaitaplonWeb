@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="Authentic Shoes - giày thể thao, thời trang và phụ kiện chính hãng.">
+  <title>Authentic Shoes | Chọn phong cách của bạn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=featured-collections-banners">
+  <script src="store-cart.js?v=color-size-inventory" defer></script>
+  <script src="script.js?v=featured-collections-banners" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#" aria-label="Authentic Shoes - Trang chủ">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i></span>
+      <span class="brand-name">AUTHENTIC<br>SHOES</span>
+    </a>
+
+    <button class="menu-toggle" type="button" aria-label="Mở menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="main-nav" aria-label="Điều hướng chính">
+      <a class="nav-link active" href="#home">Trang chủ</a>
+      <div class="nav-item has-category-menu">
+        <a class="nav-link has-chevron category-menu-trigger" href="#products" aria-expanded="false" aria-controls="apparel-menu">Quần áo <span class="chevron" aria-hidden="true"></span></a>
+        <div class="category-menu" id="apparel-menu">
+          <a href="#products" data-product-category="clothing" data-category-label="Tất cả quần áo">Tất cả quần áo <span>→</span></a>
+          <a href="#products" data-product-category="clothing" data-category-label="Áo thể thao">Áo thể thao</a>
+          <a href="#products" data-product-category="clothing" data-category-label="Quần short thể thao">Quần short thể thao</a>
+          <a href="#products" data-product-category="clothing" data-category-label="Trang phục tennis">Trang phục tennis</a>
+        </div>
+      </div>
+      <div class="nav-item has-category-menu has-mega-menu">
+        <a class="nav-link has-chevron mega-menu-trigger" href="#products" aria-expanded="false" aria-controls="shoe-mega-menu">Giày <span class="chevron" aria-hidden="true"></span></a>
+        <div class="mega-menu" id="shoe-mega-menu">
+          <div class="mega-categories" role="tablist" aria-label="Thương hiệu giày">
+            <button class="mega-category is-active" type="button" role="tab" aria-selected="true" data-mega-category="adidas">Giày Adidas</button>
+            <button class="mega-category" type="button" role="tab" aria-selected="false" data-mega-category="nike">Giày Nike</button>
+            <button class="mega-category" type="button" role="tab" aria-selected="false" data-mega-category="jordan">Giày Jordan</button>
+            <button class="mega-category" type="button" role="tab" aria-selected="false" data-mega-category="sports">Môn thể thao</button>
+            <button class="mega-category" type="button" role="tab" aria-selected="false" data-mega-category="retro">Giày Retro Sneaker</button>
+            <button class="mega-category" type="button" role="tab" aria-selected="false" data-mega-category="other">Thương hiệu khác</button>
+          </div>
+          <div class="mega-content">
+            <div class="mega-panel is-active" role="tabpanel" data-mega-panel="adidas">
+              <div class="mega-column"><h3>ADIDAS ORIGINAL</h3><a href="#products">Adidas XLG <span class="sale-tag">SALE</span></a><a href="#products">Adidas Samba</a><a href="#products">Adidas Gazelle</a><a href="#products">Adidas Campus</a></div>
+              <div class="mega-column"><h3>ULTRA BOOST</h3><a href="#products">Ultra Boost 22 <span class="sale-tag">SALE</span></a><a href="#products">Ultra Boost 4.0</a><a href="#products">Evo SL</a></div>
+              <div class="mega-column"><h3>ADIDAS YEEZY</h3><a href="#products">Yeezy 350 <span class="sale-tag">SALE</span></a><a href="#products">Yeezy Slide</a><a href="#products">Yeezy Foam Runner</a></div>
+              <div class="mega-column"><h3>ADIDAS NMD</h3><a href="#products">Human Race</a><a href="#products">Adidas Y-3</a></div>
+            </div>
+            <div class="mega-panel" role="tabpanel" data-mega-panel="nike" hidden>
+              <div class="mega-column"><h3>NIKE LIFESTYLE</h3><a href="#products">Air Force 1</a><a href="#products">Dunk Low <span class="sale-tag">HOT</span></a><a href="#products">Air Max</a><a href="#products">Cortez</a></div>
+              <div class="mega-column"><h3>RUNNING</h3><a href="#products">Vomero</a><a href="#products">Pegasus</a><a href="#products">Zoom Fly</a></div>
+              <div class="mega-column"><h3>NIKE BASKETBALL</h3><a href="#products">LeBron</a><a href="#products">Kobe</a><a href="#products">Ja</a></div>
+              <div class="mega-column"><h3>NIKE SB</h3><a href="#products">SB Dunk</a><a href="#products">SB Chron 2</a></div>
+            </div>
+            <div class="mega-panel" role="tabpanel" data-mega-panel="jordan" hidden>
+              <div class="mega-column"><h3>AIR JORDAN</h3><a href="#products">Air Jordan 1</a><a href="#products">Air Jordan 3</a><a href="#products">Air Jordan 4 <span class="sale-tag">HOT</span></a></div>
+              <div class="mega-column"><h3>JORDAN RETRO</h3><a href="#products">Jordan 1 Retro High</a><a href="#products">Jordan 1 Low</a><a href="#products">Jordan 11</a></div>
+              <div class="mega-column"><h3>JORDAN BRAND</h3><a href="#products">Jordan Spizike</a><a href="#products">Jordan Flight</a></div>
+              <div class="mega-column"><h3>PHỤ KIỆN</h3><a href="#products">Tất Jordan</a><a href="#products">Túi Jordan</a></div>
+            </div>
+            <div class="mega-panel" role="tabpanel" data-mega-panel="sports" hidden>
+              <div class="mega-column"><h3>CHẠY BỘ</h3><a href="#products">Giày chạy đường dài</a><a href="#products">Giày chạy địa hình</a><a href="#products">Giày tập luyện</a></div>
+              <div class="mega-column"><h3>SÂN ĐẤU</h3><a href="#products">Giày bóng rổ</a><a href="#products">Giày tennis</a><a href="#products">Giày Pickleball</a></div>
+              <div class="mega-column"><h3>THỂ THAO</h3><a href="#products">Giày bóng đá</a><a href="#products">Giày tập gym</a><a href="#products">Giày golf</a></div>
+              <div class="mega-column"><h3>THEO NHU CẦU</h3><a href="#products">Êm nhẹ mỗi ngày</a><a href="#products">Hỗ trợ vận động</a></div>
+            </div>
+            <div class="mega-panel" role="tabpanel" data-mega-panel="retro" hidden>
+              <div class="mega-column"><h3>RETRO CLASSICS</h3><a href="#products">Adidas Samba</a><a href="#products">Nike Cortez</a><a href="#products">Puma Palermo</a></div>
+              <div class="mega-column"><h3>COURT STYLE</h3><a href="#products">Reebok Club C</a><a href="#products">Adidas Gazelle</a><a href="#products">New Balance 550</a></div>
+              <div class="mega-column"><h3>SKATE ICONS</h3><a href="#products">Vans Old Skool</a><a href="#products">Nike SB Dunk</a></div>
+              <div class="mega-column"><h3>PHONG CÁCH</h3><a href="#products">Tối giản</a><a href="#products">Màu sắc nổi bật</a></div>
+            </div>
+            <div class="mega-panel" role="tabpanel" data-mega-panel="other" hidden>
+              <div class="mega-column"><h3>NEW BALANCE</h3><a href="#products">New Balance 530</a><a href="#products">New Balance 9060</a><a href="#products">New Balance 2002R</a></div>
+              <div class="mega-column"><h3>ASICS</h3><a href="#products">ASICS Gel-Kayano</a><a href="#products">ASICS Gel-NYC</a></div>
+              <div class="mega-column"><h3>PUMA</h3><a href="#products">Puma Speedcat</a><a href="#products">Puma Palermo</a><a href="#products">Puma Suede</a></div>
+              <div class="mega-column"><h3>THƯƠNG HIỆU KHÁC</h3><a href="#products">Converse</a><a href="#products">Onitsuka Tiger</a></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="nav-item has-category-menu">
+        <a class="nav-link has-chevron category-menu-trigger" href="#products" aria-expanded="false" aria-controls="pickleball-menu">Vợt Pickleball <span class="chevron" aria-hidden="true"></span></a>
+        <div class="category-menu" id="pickleball-menu">
+          <a href="#products" data-product-category="pickleball-racket" data-category-label="Tất cả vợt Pickleball">Tất cả vợt Pickleball <span>→</span></a>
+          <a href="#products" data-product-category="pickleball-racket" data-category-label="Vợt JOOLA" data-category-query="joola">Vợt JOOLA</a>
+          <a href="#products" data-product-category="pickleball-racket" data-category-label="Vợt Selkirk" data-category-query="selkirk">Vợt Selkirk</a>
+          <a href="#products" data-product-category="pickleball-racket" data-category-label="Vợt HEAD" data-category-query="head">Vợt HEAD</a>
+        </div>
+      </div>
+      <div class="nav-item has-category-menu">
+        <a class="nav-link has-chevron category-menu-trigger" href="#products" aria-expanded="false" aria-controls="accessories-menu">Phụ kiện <span class="chevron" aria-hidden="true"></span></a>
+        <div class="category-menu" id="accessories-menu">
+          <a href="#products" data-product-category="accessories" data-category-label="Tất cả phụ kiện">Tất cả phụ kiện <span>→</span></a>
+          <a href="#products" data-product-category="accessories" data-category-label="Bóng Pickleball" data-category-query="bóng">Bóng Pickleball</a>
+          <a href="#products" data-product-category="accessories" data-category-label="Túi thể thao" data-category-query="túi">Túi thể thao</a>
+          <a href="#products" data-product-category="accessories" data-category-label="Phụ kiện vợt" data-category-query="vợt">Phụ kiện vợt</a>
+        </div>
+      </div>
+      <a class="nav-link" href="#news">Tin tức – sự kiện</a>
+      <a class="nav-link" href="#products">Sale</a>
+    </nav>
+
+    <div class="header-actions">
+      <button class="icon-button search-toggle" type="button" aria-label="Tìm kiếm">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg>
+      </button>
+      <a class="icon-button account-button" href="/login" aria-label="Đăng nhập" title="Đăng nhập">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7.5" r="4"></circle><path d="M4.5 21c.2-4.1 3.2-6.5 7.5-6.5s7.3 2.4 7.5 6.5z"></path></svg>
+      </a>
+      <button class="icon-button cart-button" type="button" aria-label="Giỏ hàng" aria-haspopup="dialog">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h8.9a2 2 0 0 0 1.9-1.4L22 8H6"></path><circle cx="10" cy="21" r="1.2"></circle><circle cx="18" cy="21" r="1.2"></circle></svg>
+        <span class="cart-count" aria-live="polite">0</span>
+      </button>
+    </div>
+  </header>
+
+  <form class="search-panel" role="search">
+    <label class="sr-only" for="site-search">Tìm sản phẩm</label>
+    <input id="site-search" type="search" placeholder="Bạn đang tìm sản phẩm nào?">
+    <button type="submit">Tìm kiếm</button>
+  </form>
+
+  <main>
+    <section class="hero" id="home" aria-label="Bộ sưu tập mới">
+      <div class="hero-slides">
+        <article class="hero-slide is-active" data-slide="0">
+          <div class="hero-content">
+            <p class="eyebrow">AUTHENTIC SHOES <span></span></p>
+            <h1>THE NEXT<br><em>GAME</em></h1>
+            <p class="hero-description">Bứt tốc trên mọi sân đấu<br>Phong cách dành riêng cho bạn</p>
+            <a class="hero-cta" href="#products">KHÁM PHÁ NGAY <span>→</span></a>
+          </div>
+          <img class="hero-art" src="img/hero-shoe.jpg" alt="Giày Nike đỏ trên nền đỏ">
+        </article>
+        <article class="hero-slide" data-slide="1">
+          <div class="hero-content">
+            <p class="eyebrow">MOVE WITH CONFIDENCE <span></span></p>
+            <h2>FIND YOUR<br><em>PACE</em></h2>
+            <p class="hero-description">Nhẹ nhàng trong từng chuyển động<br>Sẵn sàng cho mọi hành trình</p>
+            <a class="hero-cta" href="#products">MUA SẮM NGAY <span>→</span></a>
+          </div>
+          <img class="hero-art hero-art-shoe" src="img/shoe-blue.jpg" alt="Giày Puma trắng chụp trên nền đen">
+        </article>
+        <article class="hero-slide" data-slide="2">
+          <div class="hero-content">
+            <p class="eyebrow">NEW SEASON · NEW ENERGY <span></span></p>
+            <h2>OWN THE<br><em>COURT</em></h2>
+            <p class="hero-description">Chọn đôi giày đúng chất<br>Thể hiện bản lĩnh riêng</p>
+            <a class="hero-cta" href="#categories">XEM BỘ SƯU TẬP <span>→</span></a>
+          </div>
+          <img class="hero-art hero-art-shoe" src="img/shoe-red.jpg" alt="Giày sneaker đỏ đen chụp trên sân">
+        </article>
+      </div>
+      <button class="slide-arrow slide-prev" type="button" aria-label="Ảnh trước">‹</button>
+      <button class="slide-arrow slide-next" type="button" aria-label="Ảnh tiếp theo">›</button>
+      <div class="slide-dots" aria-label="Chọn ảnh trình chiếu">
+        <button class="slide-dot is-active" type="button" aria-label="Ảnh 1" data-go-to="0"></button>
+        <button class="slide-dot" type="button" aria-label="Ảnh 2" data-go-to="1"></button>
+        <button class="slide-dot" type="button" aria-label="Ảnh 3" data-go-to="2"></button>
+      </div>
+    </section>
+
+    <section class="section categories-section" id="categories">
+      <div class="section-heading">
+        <div>
+          <p class="section-kicker">TÌM CẢM HỨNG CỦA BẠN</p>
+          <h2>Danh mục nổi bật</h2>
+        </div>
+        <a class="text-link" href="#products">Khám phá tất cả <span>↗</span></a>
+      </div>
+      <div class="category-grid">
+        <a class="category-card category-sneaker" href="#products" data-product-category="shoes" data-category-label="Giày">
+          <img src="img/shoe-detail.jpg" alt="">
+          <span class="category-caption"><small>EVERYDAY ESSENTIALS</small><strong>Giày Sneaker</strong></span>
+          <span class="category-arrow">↗</span>
+        </a>
+        <a class="category-card category-apparel" href="#products" data-product-category="clothing" data-category-label="Quần áo">
+          <img src="img/sports-shirt.jpg" alt="">
+          <span class="category-caption"><small>MAKE IT YOURS</small><strong>Quần áo</strong></span>
+          <span class="category-arrow">↗</span>
+        </a>
+        <a class="category-card category-accessories" href="#products" data-product-category="accessories" data-category-label="Phụ kiện">
+          <img src="img/sports-bag.jpg" alt="">
+          <span class="category-caption"><small>THE FINISHING TOUCH</small><strong>Phụ kiện</strong></span>
+          <span class="category-arrow">↗</span>
+        </a>
+        <a class="category-card category-pickleball" href="#products" data-product-category="pickleball-racket" data-category-label="Vợt Pickleball">
+          <img src="img/pickleball-selkirk.jpg" alt="">
+          <span class="category-caption"><small>READY TO PLAY</small><strong>Vợt Pickleball</strong></span>
+          <span class="category-arrow">↗</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="section products-section" id="products">
+      <div class="section-heading">
+        <div>
+          <p class="section-kicker">CHỌN CHẤT RIÊNG · CHỌN CHÍNH HÃNG</p>
+          <h2>Giày thể thao nổi bật</h2>
+        </div>
+        <div class="product-tabs" role="group" aria-label="Lọc sản phẩm">
+          <button class="tab-button is-active" type="button" data-filter="all">Tất cả</button>
+          <button class="tab-button" type="button" data-filter="tennis">Tennis</button>
+          <button class="tab-button" type="button" data-filter="running">Chạy bộ</button>
+        </div>
+      </div>
+      <div class="product-grid">
+      </div>
+      <div class="product-selection" role="status" aria-live="polite" hidden>
+        <p class="product-selection-message"></p>
+        <button class="clear-product-selection" type="button">Xem tất cả sản phẩm</button>
+      </div>
+      <button class="outline-button show-more" type="button">Xem thêm sản phẩm <span>→</span></button>
+    </section>
+
+    <section class="brand-banner showcase-banner showcase-banner-clothing" aria-label="Bộ sưu tập giày thể thao">
+      <div class="brand-banner-copy">
+        <p class="section-kicker">COURT READY · EVERY MOVE</p>
+        <h2>Sẵn sàng<br>chinh phục sân đấu.</h2>
+        <p>Khám phá những lựa chọn thể thao nổi bật, đồng hành trong từng bước chạy.</p>
+        <a class="dark-button" href="#clothing-featured">Khám phá bộ sưu tập <span>↗</span></a>
+      </div>
+      <div class="banner-shoes" aria-hidden="true"><img src="img/shoe-violet.jpg" alt=""><img src="img/shoe-white.jpg" alt=""><img src="img/shoe-teal.jpg" alt=""></div>
+      <span class="banner-stamp">AUTHENTIC<br>BY NATURE</span>
+    </section>
+
+    <section class="section featured-section" id="clothing-featured">
+      <div class="section-heading">
+        <div><p class="section-kicker">MOVE IN YOUR STYLE</p><h2>Quần áo thể thao nổi bật</h2></div>
+        <a class="text-link" href="#products" data-featured-category="clothing">Xem tất cả <span>↗</span></a>
+      </div>
+      <div class="product-grid featured-product-grid" data-featured-products="clothing"></div>
+    </section>
+
+    <section class="brand-banner showcase-banner showcase-banner-accessories" aria-label="Banner phụ kiện thể thao">
+      <div class="brand-banner-copy">
+        <p class="section-kicker">GEAR UP · PLAY MORE</p>
+        <h2>Đủ phụ kiện.<br>Trọn cuộc chơi.</h2>
+        <p>Từ túi đựng đồ đến phụ kiện sân đấu, sẵn sàng cho buổi tập tiếp theo.</p>
+        <a class="dark-button" href="#accessories-featured">Khám phá phụ kiện <span>↗</span></a>
+      </div>
+      <div class="banner-shoes banner-product-photos" aria-hidden="true"><img src="img/sports-bag.jpg" alt=""><img src="img/pickleball-paddle-2025.jpg" alt=""></div>
+      <span class="banner-stamp">PLAY<br>YOUR WAY</span>
+    </section>
+
+    <section class="section featured-section" id="accessories-featured">
+      <div class="section-heading">
+        <div><p class="section-kicker">THE FINISHING TOUCH</p><h2>Phụ kiện nổi bật</h2></div>
+        <a class="text-link" href="#products" data-featured-category="accessories">Xem tất cả <span>↗</span></a>
+      </div>
+      <div class="product-grid featured-product-grid" data-featured-products="accessories"></div>
+    </section>
+
+    <section class="brand-banner showcase-banner showcase-banner-pickleball" aria-label="Banner bộ sưu tập Pickleball">
+      <div class="brand-banner-copy">
+        <p class="section-kicker">FIND YOUR COURT</p>
+        <h2>Vào sân.<br>Làm chủ cuộc chơi.</h2>
+        <p>Chọn trang bị Pickleball phù hợp và sẵn sàng cho trận đấu tiếp theo.</p>
+        <a class="dark-button" href="#pickleball-featured">Khám phá Pickleball <span>↗</span></a>
+      </div>
+      <div class="banner-shoes banner-product-photos" aria-hidden="true"><img src="img/pickleball-head.jpg" alt=""><img src="img/pickleball-selkirk.jpg" alt=""></div>
+      <span class="banner-stamp">READY<br>TO PLAY</span>
+    </section>
+
+    <section class="section featured-section" id="pickleball-featured">
+      <div class="section-heading">
+        <div><p class="section-kicker">READY TO PLAY</p><h2>Vợt Pickleball nổi bật</h2></div>
+        <a class="text-link" href="#products" data-featured-category="pickleball-racket">Xem tất cả <span>↗</span></a>
+      </div>
+      <div class="product-grid featured-product-grid" data-featured-products="pickleball-racket"></div>
+    </section>
+
+    <section class="brand-banner showcase-banner showcase-banner-bestsellers" aria-label="Banner sản phẩm bán chạy">
+      <div class="brand-banner-copy">
+        <p class="section-kicker">CUSTOMER FAVORITES</p>
+        <h2>Được yêu thích.<br>Luôn sẵn sàng.</h2>
+        <p>Những lựa chọn được khách hàng tin tưởng qua mỗi mùa vận động.</p>
+        <a class="dark-button" href="#bestsellers">Xem mẫu bán chạy <span>↗</span></a>
+      </div>
+      <div class="banner-shoes" aria-hidden="true"><img src="img/shoe-red.jpg" alt=""><img src="img/shoe-white.jpg" alt=""><img src="img/shoe-blue.jpg" alt=""></div>
+      <span class="banner-stamp">BEST<br>SELLERS</span>
+    </section>
+
+    <section class="section featured-section" id="bestsellers">
+      <div class="section-heading">
+        <div><p class="section-kicker">CUSTOMER FAVORITES</p><h2>Mẫu bán chạy</h2></div>
+        <a class="text-link" href="#products">Khám phá tất cả <span>↗</span></a>
+      </div>
+      <div class="product-grid featured-product-grid" data-featured-products="bestsellers"></div>
+    </section>
+
+    <section class="section news-section" id="news">
+      <div class="section-heading">
+        <div><p class="section-kicker">STORIES & UPDATES</p><h2>Tin tức & cảm hứng</h2></div>
+        <a class="text-link" href="#news">Xem tất cả tin tức <span>↗</span></a>
+      </div>
+      <div class="news-grid">
+        <article class="news-card">
+          <a class="news-image news-image-one" href="#products"><img src="img/shoe-detail.jpg" alt="Bộ sưu tập sneaker mới"></a>
+          <div class="news-info"><p>29.10.2026 <span>•</span> PHONG CÁCH</p><h3>Những đôi sneaker kinh điển trở lại trong mùa mới</h3><a href="#products">Đọc bài viết <span>→</span></a></div>
+        </article>
+        <article class="news-card">
+          <a class="news-image news-image-two" href="#products"><img src="img/shoe-red.jpg" alt="Giày thể thao đỏ"></a>
+          <div class="news-info"><p>24.10.2026 <span>•</span> SẢN PHẨM</p><h3>Chọn giày tennis phù hợp để tự tin trên sân</h3><a href="#products">Đọc bài viết <span>→</span></a></div>
+        </article>
+        <article class="news-card">
+          <a class="news-image news-image-three" href="#products"><img src="img/shoe-teal.jpg" alt="Phong cách thể thao với sneaker đen trắng cam"></a>
+          <div class="news-info"><p>18.10.2026 <span>•</span> CẢM HỨNG</p><h3>Năng lượng mới cho mỗi bước chân của bạn</h3><a href="#products">Đọc bài viết <span>→</span></a></div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-main">
+      <div class="footer-about">
+        <a class="brand brand-light" href="#home" aria-label="Authentic Shoes - Trang chủ"><span class="brand-mark" aria-hidden="true"><i></i><i></i></span><span class="brand-name">AUTHENTIC<br>SHOES</span></a>
+        <p>Authentic Shoes - Nhà sưu tầm và phân phối chính hãng các thương hiệu thời trang quốc tế.</p>
+        <p class="footer-company">CÔNG TY TNHH TM & ĐT QUỐC TẾ Á CHÂU<br>MST: 0109539054</p>
+        <div class="trust-badges"><span>✓ ĐÃ THÔNG BÁO<br>THƯƠNG MẠI ĐIỆN TỬ</span><span>◈ BẢO MẬT<br>THÔNG TIN</span></div>
+      </div>
+      <div class="footer-column"><h3>Về chúng tôi</h3><a href="#home">Giới thiệu</a><a href="#news">Tin tức</a><a href="#home">Liên hệ</a><h3 class="social-title">Theo dõi chúng tôi</h3><div class="social-links"><a href="#home" aria-label="Facebook">f</a><a href="#home" aria-label="Instagram">◎</a><a href="#home" aria-label="YouTube">▶</a></div></div>
+      <div class="footer-column"><h3>Hỗ trợ khách hàng</h3><a href="#home">Hướng dẫn mua hàng</a><a href="#home">Chính sách đổi trả và bảo hành</a><a href="#home">Chính sách thanh toán</a><a href="#home">Điều khoản trang web</a><a href="#home">Vận chuyển và giao hàng</a></div>
+      <div class="footer-column footer-stores"><h3>Hệ thống cửa hàng</h3><p>Cơ sở 1: 561 Nguyễn Đình Chiểu, Quận 3, TP. Hồ Chí Minh</p><p>Hotline: <a href="tel:0786665444">0786 665 444</a></p><p>Cơ sở 2: 70-72 Tây Sơn, Đống Đa, Hà Nội</p><p>Hotline: <a href="tel:0785499555">0785 499 555</a></p><a href="mailto:service@authenticshoes.com">service@authenticshoes.com</a></div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 Authentic Shoes. All rights reserved.</span><span>Chính hãng · Tận tâm · Phong cách</span></div>
+  </footer>
+  <div class="toast" role="status" aria-live="polite"></div>
+  <div id="cart-root"></div>
+</body>
+</html>

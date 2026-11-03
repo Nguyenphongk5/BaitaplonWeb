@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f6f7fb">
+  <meta name="description" content="Bảng điều khiển quản trị cửa hàng Authentic Shoes.">
+  <title>Quản trị | Authentic Shoes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css?v=multi-color-size-editor">
+  <script src="admin.js?v=multi-color-size-editor" defer></script>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="sidebar" id="admin-sidebar">
+      <a class="admin-brand" href="admin.html" aria-label="Authentic Shoes Admin">
+        <span class="admin-brand-mark"><i></i><i></i></span>
+        <span><strong>AUTHENTIC</strong><small>SHOES · ADMIN</small></span>
+      </a>
+      <div class="sidebar-label">MENU CHÍNH</div>
+      <nav class="sidebar-nav" aria-label="Menu quản trị">
+        <a class="sidebar-link is-active" href="#overview"><span class="sidebar-icon">▦</span><span>Tổng quan</span><span class="nav-indicator">4</span></a>
+        <a class="sidebar-link" href="#orders"><span class="sidebar-icon">▣</span><span>Đơn hàng</span><span class="nav-count">0</span></a>
+        <a class="sidebar-link" href="#product-management"><span class="sidebar-icon">◈</span><span>Sản phẩm</span></a>
+        <a class="sidebar-link" href="#product-categories"><span class="sidebar-icon">▤</span><span>Danh mục</span></a>
+        <a class="sidebar-link" href="#customers"><span class="sidebar-icon">♙</span><span>Khách hàng</span></a>
+        <a class="sidebar-link" href="#analytics"><span class="sidebar-icon">▤</span><span>Báo cáo</span></a>
+      </nav>
+      <div class="sidebar-label sidebar-label-second">CỬA HÀNG</div>
+      <nav class="sidebar-nav" aria-label="Cài đặt cửa hàng">
+        <a class="sidebar-link" href="#promotions"><span class="sidebar-icon">◇</span><span>Khuyến mãi</span></a>
+        <a class="sidebar-link" href="#settings"><span class="sidebar-icon">⚙</span><span>Cài đặt</span></a>
+      </nav>
+      <div class="sidebar-help">
+        <span class="help-icon">✦</span>
+        <strong>Cần hỗ trợ?</strong>
+        <p>Đội ngũ của chúng tôi luôn sẵn sàng giúp bạn.</p>
+        <a href="mailto:service@authenticshoes.com">Liên hệ hỗ trợ <span>→</span></a>
+      </div>
+      <button class="sidebar-account" type="button" aria-label="Tài khoản quản trị">
+        <span class="avatar avatar-admin">AS</span>
+        <span class="account-copy"><strong>Authentic Admin</strong><small>Quản trị viên</small></span>
+        <span class="account-more">···</span>
+      </button>
+    </aside>
+
+    <div class="admin-main">
+      <header class="topbar">
+        <button class="sidebar-toggle" type="button" aria-label="Mở menu" aria-expanded="false" aria-controls="admin-sidebar"><span></span><span></span><span></span></button>
+        <div class="breadcrumb"><span>Trang quản trị</span><span>/</span><strong>Tổng quan</strong></div>
+        <div class="topbar-actions">
+          <label class="top-search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg>
+            <input id="order-search" type="search" placeholder="Tìm đơn hàng..." aria-label="Tìm đơn hàng">
+            <kbd>⌘ K</kbd>
+          </label>
+          <button class="top-icon notification-button" type="button" aria-label="Thông báo"><span>♧</span><i></i></button>
+          <span class="topbar-divider"></span>
+          <button class="profile-button" type="button"><span class="avatar avatar-profile">AS</span><span><strong>Xin chào, Admin</strong><small>Quản trị viên</small></span><span class="profile-caret">⌄</span></button>
+        </div>
+      </header>
+
+      <main class="dashboard-content" id="overview">
+        <section class="page-heading">
+          <div>
+            <p class="page-eyebrow">CHỦ NHẬT, 01 THÁNG 11, 2026</p>
+            <h1>Tổng quan cửa hàng <span>✦</span></h1>
+            <p class="page-subtitle">Chào buổi sáng! Đây là tình hình kinh doanh hôm nay.</p>
+          </div>
+          <div class="heading-actions">
+            <button class="date-button" type="button"><span>▣</span> 01 Thg 11, 2026 <span class="date-caret">⌄</span></button>
+            <button class="export-button" type="button"><span>↥</span> Xuất báo cáo</button>
+          </div>
+        </section>
+
+        <section class="stats-grid" aria-label="Chỉ số kinh doanh">
+          <article class="stat-card">
+            <div class="stat-top"><span class="stat-icon sales-icon">↗</span><span class="stat-change positive">+12,8% <span>↑</span></span></div>
+            <p class="stat-label">Tổng doanh thu</p><strong class="stat-value">₫248.650.000</strong>
+            <div class="stat-foot"><span>So với tháng trước</span><span class="sparkline sparkline-purple">▁▂▁▃▂▄▃▅▄▆▅█</span></div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top"><span class="stat-icon orders-icon">▤</span><span class="stat-change positive">+8,2% <span>↑</span></span></div>
+            <p class="stat-label">Đơn hàng</p><strong class="stat-value">1.284</strong>
+            <div class="stat-foot"><span>So với tháng trước</span><span class="sparkline sparkline-blue">▂▁▃▂▄▃▅▄▆▃▅█</span></div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top"><span class="stat-icon customers-icon">♙</span><span class="stat-change positive">+18,4% <span>↑</span></span></div>
+            <p class="stat-label">Khách hàng mới</p><strong class="stat-value">356</strong>
+            <div class="stat-foot"><span>So với tháng trước</span><span class="sparkline sparkline-orange">▁▂▃▂▁▄▃▄▅▆▄█</span></div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top"><span class="stat-icon average-icon">◎</span><span class="stat-change negative">−2,1% <span>↓</span></span></div>
+            <p class="stat-label">Giá trị đơn trung bình</p><strong class="stat-value">₫1.936.000</strong>
+            <div class="stat-foot"><span>So với tháng trước</span><span class="sparkline sparkline-green">▅▆▄▅▃▆▄▅▃▅▄▂</span></div>
+          </article>
+        </section>
+
+        <section class="analytics-grid" id="analytics">
+          <article class="panel revenue-panel">
+            <div class="panel-heading">
+              <div><h2>Doanh thu bán hàng</h2><p>Theo dõi hiệu quả kinh doanh của cửa hàng</p></div>
+              <button class="period-button" type="button">12 tháng qua <span>⌄</span></button>
+            </div>
+            <div class="chart-legend"><span><i class="legend-dot legend-revenue"></i>Doanh thu</span><span><i class="legend-dot legend-orders"></i>Đơn hàng</span></div>
+            <div class="chart-wrap" role="img" aria-label="Biểu đồ doanh thu theo tháng">
+              <div class="chart-y-labels"><span>₫300tr</span><span>₫225tr</span><span>₫150tr</span><span>₫75tr</span><span>₫0</span></div>
+              <div class="chart-area">
+                <div class="chart-grid-lines"><i></i><i></i><i></i><i></i><i></i></div>
+                <div class="chart-columns">
+                  <div class="chart-column" data-revenue="38" data-orders="23" data-tooltip="Tháng 12"><span class="bar-revenue"></span><span class="bar-orders"></span></div>
+                  <div class="chart-column" data-revenue="47" data-orders="30" data-tooltip="Tháng 1"><span class="bar-revenue"></span><span class="bar-orders"></span></div>
+                  <div class="chart-column" data-revenue="42" data-orders="26" data-tooltip="Tháng 2"><span class="bar-revenue"></span><span class="bar-orders"></span></div>
+                  <div class="chart-column" data-revenue="57" data-orders="34" data-tooltip="Tháng 3"><span class="bar-revenue"></span><span class="bar-orders"></span></div>
+                  <div class="chart-column" data-revenue="50" data-orders="39" data-tooltip="Tháng 4"><span class="bar-revenue"></span><span class="bar-orders"></span></div>
+                  <div class="chart-column" data-revenue="68" data-orders="43" data-tooltip="Tháng 5"><span class="bar-revenue"></span><span class="bar-orders"></span></div>
+                  <div class="chart-column" data-revenue="61" data-orders="38" data-tooltip="Tháng 6"><span class="bar-revenue"></span><span class="bar-orders"></span></div>
+                  <div class="chart-column" data-revenue="78" data-orders="52" data-tooltip="Tháng 7"><span class="bar-revenue"></span><span class="bar-orders"></span></div>
+                  <div class="chart-column" data-revenue="71" data-orders="48" data-tooltip="Tháng 8"><span class="bar-revenue"></span><span class="bar-orders"></span></div>
+                  <div class="chart-column" data-revenue="88" data-orders="60" data-tooltip="Tháng 9"><span class="bar-revenue"></span><span class="bar-orders"></span></div>
+                  <div class="chart-column" data-revenue="77" data-orders="55" data-tooltip="Tháng 10"><span class="bar-revenue"></span><span class="bar-orders"></span></div>
+                  <div class="chart-column" data-revenue="97" data-orders="67" data-tooltip="Tháng 11"><span class="bar-revenue"></span><span class="bar-orders"></span></div>
+                </div>
+                <div class="chart-x-labels"><span>T12</span><span>T1</span><span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span>T8</span><span>T9</span><span>T10</span><span>T11</span></div>
+              </div>
+            </div>
+            <div class="chart-summary"><span><i class="summary-dot"></i> Doanh thu tháng này <strong>₫248.650.000</strong></span><span><i class="summary-dot summary-dot-blue"></i> Đơn hàng tháng này <strong>1284 đơn</strong></span></div>
+          </article>
+
+          <article class="panel category-panel" id="top-products">
+            <div class="panel-heading"><div><h2>Sản phẩm bán chạy</h2><p>Thống kê theo danh mục</p></div><button class="more-button" type="button" aria-label="Thêm tùy chọn">···</button></div>
+            <div class="category-list">
+              <div class="category-row"><span class="category-thumb thumb-blue">AF</span><span class="category-copy"><strong>Air Force 1 '07</strong><small>Nike · Giày sneaker</small></span><span class="category-sold">248 <small>đôi</small></span><span class="category-percent">28,4%</span></div>
+              <div class="category-row"><span class="category-thumb thumb-sand">NB</span><span class="category-copy"><strong>New Balance 530</strong><small>New Balance · Lifestyle</small></span><span class="category-sold">186 <small>đôi</small></span><span class="category-percent">21,3%</span></div>
+              <div class="category-row"><span class="category-thumb thumb-pink">AJ</span><span class="category-copy"><strong>Air Jordan 1 Retro</strong><small>Jordan · Giày sneaker</small></span><span class="category-sold">154 <small>đôi</small></span><span class="category-percent">17,6%</span></div>
+              <div class="category-row"><span class="category-thumb thumb-green">SD</span><span class="category-copy"><strong>Adidas Samba OG</strong><small>Adidas · Original</small></span><span class="category-sold">123 <small>đôi</small></span><span class="category-percent">14,1%</span></div>
+              <div class="category-row"><span class="category-thumb thumb-lilac">AS</span><span class="category-copy"><strong>Asics Gel-Kayano 14</strong><small>Asics · Giày chạy bộ</small></span><span class="category-sold">98 <small>đôi</small></span><span class="category-percent">11,2%</span></div>
+            </div>
+            <a class="view-all-link" href="#orders">Xem báo cáo sản phẩm <span>→</span></a>
+          </article>
+        </section>
+
+        <section class="panel product-management-panel" id="product-management">
+          <div class="panel-heading product-management-heading">
+            <div><h2>Quản lý sản phẩm</h2><p>Sản phẩm tại đây được đồng bộ với trang cửa hàng</p></div>
+            <button class="export-button add-product-button" type="button">＋ Thêm sản phẩm</button>
+          </div>
+          <label class="product-search">
+            <span aria-hidden="true">⌕</span>
+            <input id="product-search" type="search" placeholder="Tìm tên hoặc thương hiệu..." aria-label="Tìm sản phẩm">
+          </label>
+          <div class="product-category-area" id="product-categories">
+            <div class="product-category-heading"><h3>Danh mục sản phẩm</h3><span>Chọn danh mục để xem sản phẩm bên trong</span></div>
+            <div class="product-category-filters" role="group" aria-label="Lọc sản phẩm theo danh mục"></div>
+          </div>
+          <div class="product-table-wrap">
+            <table class="product-table">
+              <thead><tr><th>SẢN PHẨM</th><th>DANH MỤC</th><th>GIÁ BÁN</th><th>TỒN KHO</th><th>TRẠNG THÁI</th><th>THAO TÁC</th></tr></thead>
+              <tbody class="product-table-body"></tbody>
+            </table>
+            <p class="empty-products" hidden>Không tìm thấy sản phẩm.</p>
+          </div>
+          <div class="product-table-footer"><span class="product-count">Đang tải sản phẩm...</span></div>
+        </section>
+
+        <section class="panel orders-panel" id="orders">
+          <div class="panel-heading orders-heading">
+            <div><h2>Đơn hàng</h2><p>Đơn đặt tại cửa hàng · COD · Cập nhật trạng thái và hoàn kho khi hủy</p></div>
+            <a class="view-orders" href="#orders">Tất cả đơn hàng <span>→</span></a>
+          </div>
+          <div class="orders-table-wrap">
+            <table class="orders-table">
+              <thead><tr><th>MÃ ĐƠN HÀNG</th><th>KHÁCH HÀNG</th><th>NGÀY ĐẶT</th><th>SẢN PHẨM</th><th>TỔNG TIỀN (COD)</th><th>TRẠNG THÁI</th></tr></thead>
+              <tbody class="orders-table-body"></tbody>
+            </table>
+            <p class="empty-orders" hidden>Không tìm thấy đơn hàng phù hợp.</p>
+          </div>
+          <div class="table-footer"><span class="order-count">Đang tải đơn hàng...</span></div>
+        </section>
+
+        <footer class="dashboard-footer"><span>© 2026 Authentic Shoes Admin</span><span>Được thiết kế với <b>♥</b> dành cho cửa hàng của bạn</span></footer>
+      </main>
+    </div>
+  </div>
+  <dialog class="admin-product-dialog" aria-labelledby="product-dialog-title">
+    <form class="admin-product-form">
+      <div class="product-dialog-heading">
+        <div><p class="page-eyebrow">KHO SẢN PHẨM</p><h2 id="product-dialog-title">Thêm sản phẩm</h2></div>
+        <button class="close-product-dialog" type="button" aria-label="Đóng">×</button>
+      </div>
+      <label>Tên sản phẩm<input name="name" required minlength="2" maxlength="160" autocomplete="off"></label>
+      <div class="product-form-row">
+        <label>Thương hiệu<input name="brand" required maxlength="80" autocomplete="off"></label>
+        <label>Danh mục
+          <select name="category" required>
+            <option value="tennis">Tennis</option>
+            <option value="running">Chạy bộ</option>
+            <option value="lifestyle">Lifestyle</option>
+            <option value="clothing">Quần áo</option>
+            <option value="shoes">Giày</option>
+            <option value="pickleball-racket">Vợt Pickleball</option>
+            <option value="accessories">Phụ kiện</option>
+          </select>
+        </label>
+      </div>
+      <div class="product-form-row">
+        <label>Giá bán (₫)<input name="price" type="number" min="1" max="1000000000" step="1" required></label>
+        <label>Nhãn (không bắt buộc)<input name="badge" maxlength="40" placeholder="Ví dụ: MỚI, -15%"></label>
+      </div>
+      <label class="product-legacy-stock-field">Tồn kho (không dùng phân loại)<input name="stockQuantity" type="number" min="0" max="1000000" step="1" required></label>
+      <section class="product-variant-editor">
+        <div class="product-variant-editor-heading">
+          <div><strong>Biến thể màu sắc và size</strong><small>Bấm “Thêm màu sắc”, rồi thêm các size và tồn kho cho từng màu.</small></div>
+          <button class="add-product-color" type="button">+ Thêm màu sắc</button>
+        </div>
+        <div class="product-color-groups"></div>
+      </section>
+      <label>Đường dẫn ảnh<input name="imageUrl" required maxlength="500" placeholder="/img/shoe-white.jpg"></label>
+      <p class="product-image-help">Dùng ảnh trong thư mục img (ví dụ /img/shoe-white.jpg) hoặc đường dẫn HTTPS.</p>
+      <label class="product-active-option"><input name="isActive" type="checkbox" checked><span>Hiển thị sản phẩm trên cửa hàng</span></label>
+      <p class="product-form-error" role="alert" hidden></p>
+      <div class="product-dialog-actions">
+        <button class="dialog-cancel-button" type="button">Hủy</button>
+        <button class="export-button product-save-button" type="submit">Lưu sản phẩm</button>
+      </div>
+    </form>
+  </dialog>
+  <div class="admin-toast" role="status" aria-live="polite"></div>
+</body>
+</html>

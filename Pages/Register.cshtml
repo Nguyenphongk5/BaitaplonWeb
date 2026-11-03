@@ -1,0 +1,73 @@
+@page "/register"
+@model BaitaplonWeb.Pages.RegisterModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f6fa">
+    <title>Tạo tài khoản | Authentic Shoes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/auth.css">
+</head>
+<body>
+    <main class="auth-layout">
+        <section class="auth-visual">
+            <a class="auth-brand" href="/"><span class="auth-brand-mark"><i></i><i></i></span><span>AUTHENTIC<br>SHOES</span></a>
+            <div class="auth-visual-copy">
+                <p class="auth-eyebrow">YOUR NEXT STEP STARTS HERE</p>
+                <h1>Tìm đôi giày<br>đúng chất<br><em>riêng bạn.</em></h1>
+                <p>Tạo tài khoản để lưu lại những lựa chọn yêu thích và cập nhật bộ sưu tập mới.</p>
+            </div>
+            <span class="auth-visual-note">AUTHENTIC STYLE · EVERY STEP</span>
+        </section>
+
+        <section class="auth-form-side">
+            <div class="auth-form-wrap">
+                <a class="back-home" href="/"><span>←</span> Về trang chủ</a>
+                <div class="mobile-brand"><span class="auth-brand-mark"><i></i><i></i></span><span>AUTHENTIC<br>SHOES</span></div>
+                <div class="auth-heading">
+                    <span class="auth-heading-icon">✦</span>
+                    <p class="auth-kicker">THÀNH VIÊN AUTHENTIC SHOES</p>
+                    <h2>Tạo tài khoản<br>của bạn.</h2>
+                    <p>Chỉ mất một phút để bắt đầu.</p>
+                </div>
+
+                <form method="post" class="auth-form">
+                    <input type="hidden" asp-for="ReturnUrl">
+                    <div asp-validation-summary="ModelOnly" class="form-errors" role="alert"></div>
+                    <div class="form-field">
+                        <label asp-for="Input.FullName">Họ và tên</label>
+                        <input asp-for="Input.FullName" placeholder="Nguyễn Văn An" autocomplete="name" autofocus>
+                        <span asp-validation-for="Input.FullName" class="field-error"></span>
+                    </div>
+                    <div class="form-field">
+                        <label asp-for="Input.Email">Địa chỉ email</label>
+                        <input asp-for="Input.Email" type="email" placeholder="ban@email.com" autocomplete="email">
+                        <span asp-validation-for="Input.Email" class="field-error"></span>
+                    </div>
+                    <div class="form-field">
+                        <label asp-for="Input.Password">Mật khẩu</label>
+                        <input asp-for="Input.Password" type="password" placeholder="Ít nhất 8 ký tự" autocomplete="new-password">
+                        <span asp-validation-for="Input.Password" class="field-error"></span>
+                    </div>
+                    <div class="form-field">
+                        <label asp-for="Input.ConfirmPassword">Xác nhận mật khẩu</label>
+                        <input asp-for="Input.ConfirmPassword" type="password" placeholder="Nhập lại mật khẩu" autocomplete="new-password">
+                        <span asp-validation-for="Input.ConfirmPassword" class="field-error"></span>
+                    </div>
+                    <button class="auth-submit" type="submit">Tạo tài khoản <span>→</span></button>
+                </form>
+
+                <p class="auth-switch">Đã có tài khoản? <a href="/login">Đăng nhập</a></p>
+                <p class="auth-legal">Tài khoản tạo từ trang này chỉ có quyền mua sắm. <a href="/">Tìm hiểu thêm</a>.</p>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

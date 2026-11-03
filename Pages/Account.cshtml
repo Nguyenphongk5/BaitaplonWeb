@@ -1,0 +1,54 @@
+@page "/account"
+@model BaitaplonWeb.Pages.AccountModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tài khoản | Authentic Shoes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/auth.css">
+</head>
+<body>
+    <main class="account-page">
+        <section class="account-card">
+            <a class="auth-brand account-brand" href="/"><span class="auth-brand-mark"><i></i><i></i></span><span>AUTHENTIC<br>SHOES</span></a>
+            <p class="auth-kicker">TÀI KHOẢN CỦA BẠN</p>
+            <h1>Xin chào, @Model.DisplayName.</h1>
+            <p class="account-email">@Model.Email</p>
+            <span class="account-role">@(User.IsInRole(RoleNames.Admin) ? "QUẢN TRỊ VIÊN" : "KHÁCH HÀNG")</span>
+            <div class="account-actions">
+                @if (User.IsInRole(RoleNames.Admin))
+                {
+                    <a class="auth-submit account-admin-link" href="/admin">Mở trang quản trị <span>→</span></a>
+                }
+                <a class="account-home-link" href="/">Quay lại trang chủ</a>
+                <form method="post" asp-page-handler="Logout">
+                    <button class="account-logout" type="submit">Đăng xuất</button>
+                </form>
+            </div>
+            @if (!User.IsInRole(RoleNames.Admin))
+            {
+                <section class="account-orders" aria-labelledby="account-orders-title">
+                    <div class="account-orders-heading">
+                        <div>
+                            <p class="auth-kicker">THEO DÕI ĐƠN HÀNG</p>
+                            <h2 id="account-orders-title">Lịch sử đơn hàng</h2>
+                        </div>
+                        <span class="order-live-indicator" data-live-state>Đang kết nối</span>
+                    </div>
+                    <p class="account-orders-help">Đơn hàng đặt khi bạn đăng nhập sẽ xuất hiện tại đây. Trạng thái được cập nhật trực tiếp.</p>
+                    <p class="account-orders-message" data-orders-message role="status">Đang tải đơn hàng…</p>
+                    <div class="account-order-list" data-order-list aria-live="polite"></div>
+                </section>
+                <script src="/js/account-orders.js?v=color-size-inventory" defer></script>
+            }
+        </section>
+    </main>
+</body>
+</html>

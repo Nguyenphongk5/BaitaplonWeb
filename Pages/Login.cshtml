@@ -1,0 +1,64 @@
+@page "/login"
+@model BaitaplonWeb.Pages.LoginModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f6fa">
+    <title>Đăng nhập | Authentic Shoes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/auth.css">
+</head>
+<body>
+    <main class="auth-layout">
+        <section class="auth-visual">
+            <a class="auth-brand" href="/"><span class="auth-brand-mark"><i></i><i></i></span><span>AUTHENTIC<br>SHOES</span></a>
+            <div class="auth-visual-copy">
+                <p class="auth-eyebrow">AUTHENTIC SHOES · EST. 2019</p>
+                <h1>Phong cách<br>bắt đầu từ<br><em>bước chân.</em></h1>
+                <p>Khám phá những đôi giày bạn yêu thích và tạo nên dấu ấn riêng trên mọi hành trình.</p>
+            </div>
+            <span class="auth-visual-note">MOVE WITH CONFIDENCE — EVERY DAY</span>
+        </section>
+
+        <section class="auth-form-side">
+            <div class="auth-form-wrap">
+                <a class="back-home" href="/"><span>←</span> Về trang chủ</a>
+                <div class="mobile-brand"><span class="auth-brand-mark"><i></i><i></i></span><span>AUTHENTIC<br>SHOES</span></div>
+                <div class="auth-heading">
+                    <span class="auth-heading-icon">✦</span>
+                    <p class="auth-kicker">RẤT VUI ĐƯỢC GẶP LẠI</p>
+                    <h2>Chào mừng<br>bạn trở lại.</h2>
+                    <p>Đăng nhập để tiếp tục mua sắm tại Authentic Shoes.</p>
+                </div>
+
+                <form method="post" class="auth-form">
+                    <input type="hidden" asp-for="ReturnUrl">
+                    <div asp-validation-summary="ModelOnly" class="form-errors" role="alert"></div>
+                    <div class="form-field">
+                        <label asp-for="Input.Email">Địa chỉ email</label>
+                        <input asp-for="Input.Email" type="email" placeholder="ban@email.com" autocomplete="email" autofocus>
+                        <span asp-validation-for="Input.Email" class="field-error"></span>
+                    </div>
+                    <div class="form-field">
+                        <div class="field-label-row"><label asp-for="Input.Password">Mật khẩu</label><a href="/register">Tạo tài khoản?</a></div>
+                        <input asp-for="Input.Password" type="password" placeholder="Nhập mật khẩu của bạn" autocomplete="current-password">
+                        <span asp-validation-for="Input.Password" class="field-error"></span>
+                    </div>
+                    <label class="remember-option"><input asp-for="Input.RememberMe"><span>Giữ tôi đăng nhập</span></label>
+                    <button class="auth-submit" type="submit">Đăng nhập <span>→</span></button>
+                </form>
+
+                <p class="auth-switch">Bạn chưa có tài khoản? <a href="/register">Đăng ký ngay</a></p>
+                <p class="auth-legal">Bằng việc đăng nhập, bạn đồng ý với <a href="/">Điều khoản sử dụng</a> và <a href="/">Chính sách bảo mật</a>.</p>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
