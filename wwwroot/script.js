@@ -125,8 +125,16 @@ function createProductCard(product, index) {
   const stock = document.createElement("p");
   stock.className = `product-stock${product.stockQuantity === 0 ? " is-out-of-stock" : ""}`;
   stock.textContent = product.stockQuantity === 0 ? "Tạm hết hàng" : `Còn ${product.stockQuantity} sản phẩm`;
+  const detailAction = document.createElement("a");
+  detailAction.className = "product-detail-action";
+  detailAction.href = `/product.html?id=${encodeURIComponent(product.id)}`;
+  detailAction.append(document.createTextNode("Xem chi tiết "));
+  const detailArrow = document.createElement("span");
+  detailArrow.setAttribute("aria-hidden", "true");
+  detailArrow.textContent = "↗";
+  detailAction.append(detailArrow);
   bottom.append(price, addButton);
-  info.append(brand, name, stock, bottom);
+  info.append(brand, name, stock, bottom, detailAction);
   card.append(imageContainer, info);
   return card;
 }
@@ -327,6 +335,13 @@ document.querySelectorAll(".category-card[data-product-category]").forEach((card
   card.addEventListener("click", (event) => {
     event.preventDefault();
     selectProductCategory(card.dataset.productCategory, card.dataset.categoryLabel);
+  });
+});
+
+document.querySelectorAll("[data-brand-filter]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const brand = button.dataset.brandFilter;
+    selectProductCategory("shoes", brand, brand);
   });
 });
 

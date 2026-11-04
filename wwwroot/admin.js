@@ -145,6 +145,80 @@ async function loadOrders() {
   renderOrders();
 }
 
+function formatDashboardMoney(value) {
+  return `${new Intl.NumberFormat("vi-VN").format(value)} ₫`;
+}
+
+async function loadDashboard() {
+  const dashboard = await requestProductApi("/api/admin/dashboard");
+  const stats = {
+    revenue: formatDashboardMoney(dashboard.revenueThisMonth),
+    orders: new Intl.NumberFormat("vi-VN").format(dashboard.ordersThisMonth),
+    customers: new Intl.NumberFormat("vi-VN").format(dashboard.customersThisMonth),
+    average: formatDashboardMoney(Math.round(dashboard.averageCompletedOrderThisMonth))
+  };
+  Object.entries(stats).forEach(([key, value]) => {
+    document.querySelector(`[data-stat="${key}"]`).textContent = value;
+  });
+  document.querySelector('[data-summary="revenue"]').textContent = stats.revenue;
+  document.querySelector('[data-summary="orders"]').textContent = `${stats.orders} đơn`;
+
+  const now = new Date();
+  document.querySelector(".dashboard-date").textContent = new Intl.DateTimeFormat("vi-VN", {
+    weekday: "long", day: "2-digit", month: "long", year: "numeric"
+  }).format(now).toLocaleUpperCase("vi");
+  document.querySelector(".dashboard-month").textContent = new Intl.DateTimeFormat("vi-VN", {
+    month: "long", year: "numeric"
+  }).format(now);
+
+  const revenueMax = Math.max(1, ...dashboard.monthlySeries.map((month) => month.revenue));
+  const ordersMax = Math.max(1, ...dashboard.monthlySeries.map((month) => month.orders));
+  const chartColumns = document.querySelector(".chart-columns");
+  const chartLabels = document.querySelector(".chart-x-labels");
+  chartColumns.replaceChildren();
+  chartLabels.replaceChildren();
+  dashboard.monthlySeries.forEach((month) => {
+    const column = document.createElement("div");
+    column.className = "chart-column";
+    column.dataset.tooltip = `${month.label}: ${formatDashboardMoney(month.revenue)}, ${month.orders} đơn`;
+    const revenueBar = document.createElement("span");
+    revenueBar.className = "bar-revenue";
+    revenueBar.style.setProperty("--revenue", String(month.revenue / revenueMax * 100));
+    const ordersBar = document.createElement("span");
+    ordersBar.className = "bar-orders";
+    ordersBar.style.setProperty("--orders", String(month.orders / ordersMax * 100));
+    column.append(revenueBar, ordersBar);
+    chartColumns.append(column);
+    const label = document.createElement("span");
+    label.textContent = month.label;
+    chartLabels.append(label);
+  });
+  document.querySelector(".chart-max-label").textContent = formatDashboardMoney(revenueMax);
+
+  const categoryList = document.querySelector(".category-list");
+  if (dashboard.topProducts.length === 0) {
+    categoryList.textContent = "Chưa có sản phẩm bán hoàn tất.";
+    return;
+  }
+  categoryList.replaceChildren(...dashboard.topProducts.map((product, index) => {
+    const row = document.createElement("div");
+    row.className = "category-row";
+    const thumb = document.createElement("span");
+    thumb.className = `category-thumb thumb-${["blue", "sand", "pink", "green", "lilac"][index]}`;
+    thumb.textContent = product.name.trim().split(/\s+/).slice(0, 2).map((word) => word[0]).join("").toLocaleUpperCase("vi");
+    const copy = document.createElement("span");
+    copy.className = "category-copy";
+    const name = document.createElement("strong");
+    name.textContent = product.name;
+    copy.append(name);
+    const sold = document.createElement("span");
+    sold.className = "category-sold";
+    sold.textContent = `${new Intl.NumberFormat("vi-VN").format(product.quantity)} sản phẩm`;
+    row.append(thumb, copy, sold);
+    return row;
+  }));
+}
+
 ordersTableBody.addEventListener("change", async (event) => {
   const select = event.target.closest(".order-status-select");
   if (!select) return;
@@ -436,6 +510,7 @@ async function initializeProductManagement() {
   }
   await loadProducts();
   await loadOrders();
+  await loadDashboard();
 }
 
 initializeProductManagement().catch((error) => {
@@ -556,48 +631,17 @@ document.querySelectorAll(".sidebar-link").forEach((link) => {
 
 orderSearch.addEventListener("input", applyOrderSearch);
 
-const periodValues = {
-  "12 tháng qua": [
-    [38, 23], [47, 30], [42, 26], [57, 34], [50, 39], [68, 43],
-    [61, 38], [78, 52], [71, 48], [88, 60], [77, 55], [97, 67]
-  ],
-  "30 ngày qua": [
-    [30, 21], [45, 28], [38, 24], [57, 36], [48, 34], [70, 45],
-    [64, 41], [53, 38], [76, 52], [69, 49], [86, 62], [96, 72]
-  ],
-  "7 ngày qua": [
-    [33, 25], [47, 36], [41, 31], [64, 48], [55, 42], [79, 59],
-    [68, 51], [58, 44], [75, 58], [70, 53], [88, 67], [98, 76]
-  ]
-};
-
-document.querySelectorAll(".chart-column").forEach((column) => {
-  column.style.setProperty("--revenue", column.dataset.revenue);
-  column.style.setProperty("--orders", column.dataset.orders);
-});
-
-const periodButton = document.querySelector(".period-button");
-const periodOptions = Object.keys(periodValues);
-let activePeriod = 0;
-
-periodButton.addEventListener("click", () => {
-  activePeriod = (activePeriod + 1) % periodOptions.length;
-  const period = periodOptions[activePeriod];
-  periodButton.innerHTML = `${period} <span>⌄</span>`;
-  document.querySelectorAll(".chart-column").forEach((column, index) => {
-    const [revenue, orders] = periodValues[period][index];
-    column.style.setProperty("--revenue", revenue);
-    column.style.setProperty("--orders", orders);
-  });
-  showAdminToast(`Đã cập nhật biểu đồ: ${period.toLocaleLowerCase("vi")}.`);
-});
-
 document.querySelector(".export-button").addEventListener("click", () => {
+  const protectSpreadsheetCell = (value) => {
+    const text = String(value ?? "");
+    return /^[\s\uFEFF]*[=+\-@]/.test(text) ? `'${text}` : text;
+  };
   const rows = [
     ["Mã đơn hàng", "Khách hàng", "Ngày đặt", "Sản phẩm", "Tổng tiền COD", "Trạng thái"],
     ...orderRows
       .filter((row) => !row.hidden)
-      .map((row) => [...row.cells].slice(0, 6).map((cell) => cell.innerText.replace(/\s+/g, " ").trim()))
+      .map((row) => [...row.cells].slice(0, 6).map((cell) =>
+        protectSpreadsheetCell(cell.innerText.replace(/\s+/g, " ").trim())))
   ];
   const csv = `\uFEFF${rows.map((row) => row.map((value) => `"${value.replace(/"/g, '""')}"`).join(",")).join("\r\n")}`;
   const file = new Blob([csv], { type: "text/csv;charset=utf-8" });
@@ -605,39 +649,8 @@ document.querySelector(".export-button").addEventListener("click", () => {
   link.href = URL.createObjectURL(file);
   link.download = "authentic-shoes-don-hang.csv";
   link.click();
-  URL.revokeObjectURL(link.href);
+  window.setTimeout(() => URL.revokeObjectURL(link.href), 1000);
   showAdminToast("Đã tải báo cáo đơn hàng dạng CSV.");
-});
-
-document.querySelector(".date-button").addEventListener("click", () => {
-  showAdminToast("Dữ liệu đang hiển thị cho ngày 01 Tháng 11, 2026.");
-});
-
-document.querySelector(".notification-button").addEventListener("click", () => {
-  showAdminToast("Bạn có 3 thông báo mới từ cửa hàng.");
-});
-
-document.querySelectorAll(".pagination button:not(:disabled)").forEach((button) => {
-  button.addEventListener("click", () => {
-    if (button.hasAttribute("aria-label")) {
-      showAdminToast("Đây là dữ liệu mẫu của giao diện quản trị.");
-      return;
-    }
-    document.querySelectorAll(".pagination button").forEach((item) => {
-      item.classList.remove("page-current");
-      item.removeAttribute("aria-current");
-    });
-    button.classList.add("page-current");
-    button.setAttribute("aria-current", "page");
-    showAdminToast("Dữ liệu mẫu chỉ có 4 đơn hàng gần nhất.");
-  });
-});
-
-document.querySelectorAll(".row-more").forEach((button) => {
-  button.addEventListener("click", () => {
-    const orderId = button.getAttribute("aria-label").replace("Tùy chọn đơn hàng ", "");
-    showAdminToast(`Đơn hàng ${orderId} · Trang quản trị đang dùng dữ liệu mẫu.`);
-  });
 });
 
 document.querySelector(".profile-button").addEventListener("click", () => {
@@ -646,8 +659,4 @@ document.querySelector(".profile-button").addEventListener("click", () => {
 
 document.querySelector(".sidebar-account").addEventListener("click", () => {
   window.location.href = "/account";
-});
-
-document.querySelector(".more-button").addEventListener("click", () => {
-  showAdminToast("Danh sách đang được sắp xếp theo sản phẩm bán chạy.");
 });

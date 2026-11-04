@@ -308,6 +308,56 @@ public static class ProductEndpoints
             return Results.Created($"/api/orders/{order.Id}", new { id = order.Id, order.TotalAmount, order.Status });
         }).RequireAuthorization();
 
+        app.MapGet("/api/admin/dashboard", async (
+            ApplicationDbContext database,
+            CancellationToken cancellationToken) =>
+        {
+            var now = DateTime.UtcNow.AddHours(7);
+            var currentMonth = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+            var seriesStart = currentMonth.AddMonths(-11);
+            var seriesEndUtc = currentMonth.AddMonths(1).AddHours(-7);
+            var orders = await database.StoreOrders
+                .AsNoTracking()
+                .Where(order => order.CreatedAtUtc >= seriesStart.AddHours(-7)
+                    && order.CreatedAtUtc < seriesEndUtc)
+                .Select(order => new { order.CreatedAtUtc, order.TotalAmount, order.Status, order.UserId })
+                .ToListAsync(cancellationToken);
+
+            var monthlySeries = Enumerable.Range(0, 12).Select(offset =>
+            {
+                var month = seriesStart.AddMonths(offset);
+                var inMonth = orders.Where(order => order.CreatedAtUtc.AddHours(7).Year == month.Year
+                    && order.CreatedAtUtc.AddHours(7).Month == month.Month).ToList();
+                return new DashboardMonthResponse(
+                    month.ToString("yyyy-MM"),
+                    month.ToString("MMM", System.Globalization.CultureInfo.GetCultureInfo("vi-VN")),
+                    inMonth.Where(order => order.Status == OrderStatuses.Completed).Sum(order => order.TotalAmount),
+                    inMonth.Count(order => order.Status != OrderStatuses.Cancelled));
+            }).ToList();
+
+            var thisMonth = orders.Where(order => order.CreatedAtUtc.AddHours(7) >= currentMonth).ToList();
+            var completedThisMonth = thisMonth.Where(order => order.Status == OrderStatuses.Completed).ToList();
+            var topProducts = await database.StoreOrderItems
+                .AsNoTracking()
+                .Where(item => item.Order != null && item.Order.Status == OrderStatuses.Completed)
+                .GroupBy(item => item.ProductId)
+                .Select(group => new DashboardProductResponse(
+                    group.Max(item => item.ProductName),
+                    group.Sum(item => item.Quantity)))
+                .OrderByDescending(item => item.Quantity)
+                .Take(5)
+                .ToListAsync(cancellationToken);
+
+            return Results.Ok(new DashboardResponse(
+                completedThisMonth.Sum(order => order.TotalAmount),
+                thisMonth.Count(order => order.Status != OrderStatuses.Cancelled),
+                thisMonth.Where(order => order.Status != OrderStatuses.Cancelled && order.UserId != null)
+                    .Select(order => order.UserId).Distinct().Count(),
+                completedThisMonth.Count == 0 ? 0 : completedThisMonth.Average(order => order.TotalAmount),
+                monthlySeries,
+                topProducts));
+        }).RequireAuthorization(policy => policy.RequireRole(RoleNames.Admin));
+
         var adminProducts = app.MapGroup("/api/admin/products")
             .RequireAuthorization(policy => policy.RequireRole(RoleNames.Admin));
 
@@ -845,4 +895,16 @@ public static class ProductEndpoints
         string Status,
         DateTime CreatedAtUtc,
         List<OrderItemResponse> Items);
+
+    private sealed record DashboardResponse(
+        long RevenueThisMonth,
+        int OrdersThisMonth,
+        int CustomersThisMonth,
+        double AverageCompletedOrderThisMonth,
+        List<DashboardMonthResponse> MonthlySeries,
+        List<DashboardProductResponse> TopProducts);
+
+    private sealed record DashboardMonthResponse(string Key, string Label, long Revenue, int Orders);
+
+    private sealed record DashboardProductResponse(string Name, int Quantity);
 }

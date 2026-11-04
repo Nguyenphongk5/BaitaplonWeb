@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#ffffff">
+  <meta name="theme-color" content="#0b1b2b">
   <meta name="description" content="Authentic Shoes - giày thể thao, thời trang và phụ kiện chính hãng.">
   <title>Authentic Shoes | Chọn phong cách của bạn</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=featured-collections-banners">
+  <link rel="stylesheet" href="styles.css?v=premium-sneaker-store">
   <script src="store-cart.js?v=color-size-inventory" defer></script>
-  <script src="script.js?v=featured-collections-banners" defer></script>
+  <script src="script.js?v=premium-brand-filters" defer></script>
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="#" aria-label="Authentic Shoes - Trang chủ">
+    <a class="brand" href="#home" aria-label="Authentic Shoes - Trang chủ">
       <span class="brand-mark" aria-hidden="true"><i></i><i></i></span>
       <span class="brand-name">AUTHENTIC<br>SHOES</span>
     </a>
@@ -138,7 +138,7 @@
             <p class="hero-description">Bứt tốc trên mọi sân đấu<br>Phong cách dành riêng cho bạn</p>
             <a class="hero-cta" href="#products">KHÁM PHÁ NGAY <span>→</span></a>
           </div>
-          <img class="hero-art" src="img/hero-shoe.jpg" alt="Giày Nike đỏ trên nền đỏ">
+          <img class="hero-art hero-art-cutout" src="img/shoe-blue.jpg" alt="Giày sneaker trắng Puma">
         </article>
         <article class="hero-slide" data-slide="1">
           <div class="hero-content">
@@ -147,7 +147,7 @@
             <p class="hero-description">Nhẹ nhàng trong từng chuyển động<br>Sẵn sàng cho mọi hành trình</p>
             <a class="hero-cta" href="#products">MUA SẮM NGAY <span>→</span></a>
           </div>
-          <img class="hero-art hero-art-shoe" src="img/shoe-blue.jpg" alt="Giày Puma trắng chụp trên nền đen">
+          <img class="hero-art hero-art-shoe" src="img/shoe-detail.jpg" alt="Bộ sưu tập sneaker phong cách thể thao">
         </article>
         <article class="hero-slide" data-slide="2">
           <div class="hero-content">
@@ -165,6 +165,21 @@
         <button class="slide-dot is-active" type="button" aria-label="Ảnh 1" data-go-to="0"></button>
         <button class="slide-dot" type="button" aria-label="Ảnh 2" data-go-to="1"></button>
         <button class="slide-dot" type="button" aria-label="Ảnh 3" data-go-to="2"></button>
+      </div>
+    </section>
+
+    <section class="service-strip" aria-label="Cam kết dịch vụ">
+      <div class="service-item">
+        <span class="service-icon" aria-hidden="true">✓</span>
+        <span><strong>100% chính hãng</strong><small>Kiểm định trước khi giao</small></span>
+      </div>
+      <div class="service-item">
+        <span class="service-icon" aria-hidden="true">↗</span>
+        <span><strong>Giao hàng nhanh</strong><small>Đóng gói cẩn thận toàn quốc</small></span>
+      </div>
+      <div class="service-item">
+        <span class="service-icon" aria-hidden="true">↺</span>
+        <span><strong>Đổi trả dễ dàng</strong><small>An tâm chọn đúng đôi giày</small></span>
       </div>
     </section>
 
@@ -211,6 +226,14 @@
           <button class="tab-button" type="button" data-filter="tennis">Tennis</button>
           <button class="tab-button" type="button" data-filter="running">Chạy bộ</button>
         </div>
+      </div>
+      <div class="brand-quick-filters" role="group" aria-label="Lọc nhanh theo thương hiệu">
+        <span>Thương hiệu</span>
+        <button type="button" data-brand-filter="Nike">Nike</button>
+        <button type="button" data-brand-filter="Adidas">Adidas</button>
+        <button type="button" data-brand-filter="New Balance">New Balance</button>
+        <button type="button" data-brand-filter="Puma">Puma</button>
+        <button type="button" data-brand-filter="Converse">Converse</button>
       </div>
       <div class="product-grid">
       </div>
