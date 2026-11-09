@@ -13,7 +13,12 @@ Trang chủ: `/`
 Đăng nhập: `/login`  
 Trang quản trị (chỉ role `Admin`): `/admin`
 
-Tài khoản tạo từ biểu mẫu đăng ký được gán role `User`. Cơ sở dữ liệu Identity dùng SQLite và tự áp dụng migration khi ứng dụng khởi động.
+Tài khoản tạo từ biểu mẫu đăng ký được gán role `User`. Ứng dụng dùng SQL Server và tự áp dụng migration khi khởi động. Mặc định, chuỗi kết nối dùng SQL Server LocalDB (`MSSQLLocalDB`) và tạo database `AuthenticShoes`. Nếu dùng SQL Server khác, ghi đè `ConnectionStrings__DefaultConnection` bằng chuỗi kết nối của server và database cần dùng trước khi chạy:
+
+```powershell
+$env:ConnectionStrings__DefaultConnection = "Server=localhost;Database=AuthenticShoes;Trusted_Connection=True;TrustServerCertificate=True"
+dotnet run
+```
 
 Danh mục sản phẩm được lưu trong cùng cơ sở dữ liệu. Trang quản trị có thể thêm, sửa, ẩn/hiện và xóa sản phẩm; các sản phẩm đang hiển thị sẽ được tải từ cơ sở dữ liệu lên trang cửa hàng. Trang chủ có khu vực sản phẩm nổi bật riêng cho giày, quần áo, phụ kiện, vợt Pickleball và mẫu bán chạy; các bộ sưu tập được ngăn cách bằng banner quảng bá. Mẫu bán chạy xếp theo số lượng trong đơn chưa bị hủy, đồng thời tôn trọng nhãn **BÁN CHẠY** của sản phẩm. Danh mục hỗ trợ giày (tennis, chạy bộ, lifestyle), quần áo, vợt Pickleball và phụ kiện. Trang chủ có menu lọc các danh mục này; mục **Danh mục** trong admin lọc sản phẩm theo nhóm và hiển thị số lượng từng nhóm. Migration thêm các sản phẩm mẫu bằng ID tự sinh, không ghi đè sản phẩm admin đã tạo. Ảnh sản phẩm nhận đường dẫn trong `/img/` hoặc `/assets/`, hoặc URL HTTPS.
 

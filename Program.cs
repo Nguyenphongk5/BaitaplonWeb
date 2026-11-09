@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' was not configured.");
 
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connectionString));
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 builder.Services.AddSingleton<OrderStatusNotifier>();
 builder.Services
     .AddIdentity<IdentityUser, IdentityRole>(options =>
