@@ -274,6 +274,11 @@ public static class ProductEndpoints
                 }
             }
 
+            await SyncProductStockFromVariantsAsync(
+                database,
+                products.Values.Where(product => product.Variants.Count > 0).Select(product => product.Id),
+                cancellationToken);
+
             var order = new StoreOrder
             {
                 UserId = context.User.Identity?.IsAuthenticated == true
@@ -515,12 +520,20 @@ public static class ProductEndpoints
                 {
                     if (item.Color is not null && item.Variant is not null)
                     {
-                        await database.ProductVariants
+                        var updatedRows = await database.ProductVariants
                             .Where(variant => variant.ProductId == item.ProductId
                                 && variant.Color == item.Color
                                 && variant.Size == item.Variant)
                             .ExecuteUpdateAsync(setters => setters
                                 .SetProperty(variant => variant.StockQuantity, variant => variant.StockQuantity + item.Quantity), cancellationToken);
+
+                        if (updatedRows == 0)
+                        {
+                            await transaction.RollbackAsync(cancellationToken);
+                            return Results.Conflict(new { message = "Không tìm thấy phân loại sản phẩm để hoàn kho. Đơn hàng chưa được hủy." });
+                        }
+
+                        continue;
                     }
 
                     await database.Products
@@ -528,6 +541,13 @@ public static class ProductEndpoints
                         .ExecuteUpdateAsync(setters => setters
                             .SetProperty(product => product.StockQuantity, product => product.StockQuantity + item.Quantity), cancellationToken);
                 }
+
+                await SyncProductStockFromVariantsAsync(
+                    database,
+                    order.Items
+                        .Where(item => item.Color is not null && item.Variant is not null)
+                        .Select(item => item.ProductId),
+                    cancellationToken);
             }
 
             order.Status = request.Status;
@@ -728,6 +748,32 @@ public static class ProductEndpoints
         }
 
         product.Variants.AddRange(requested.Values.Select(ToVariant));
+    }
+
+    private static async Task SyncProductStockFromVariantsAsync(
+        ApplicationDbContext database,
+        IEnumerable<int> productIds,
+        CancellationToken cancellationToken)
+    {
+        var ids = productIds.Distinct().ToArray();
+        if (ids.Length == 0)
+        {
+            return;
+        }
+
+        var stockByProduct = await database.ProductVariants
+            .Where(variant => ids.Contains(variant.ProductId))
+            .GroupBy(variant => variant.ProductId)
+            .Select(group => new { ProductId = group.Key, StockQuantity = group.Sum(variant => variant.StockQuantity) })
+            .ToDictionaryAsync(item => item.ProductId, item => item.StockQuantity, cancellationToken);
+        var products = await database.Products
+            .Where(product => ids.Contains(product.Id))
+            .ToListAsync(cancellationToken);
+
+        foreach (var product in products)
+        {
+            product.StockQuantity = stockByProduct.GetValueOrDefault(product.Id);
+        }
     }
 
     private static ProductResponse ToResponse(Product product, int soldQuantity = 0) => new(

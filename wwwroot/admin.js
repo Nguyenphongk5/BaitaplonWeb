@@ -248,6 +248,12 @@ function renderProductCategoryFilters() {
   }));
 }
 
+function productStockQuantity(product) {
+  return product.variants?.length
+    ? product.variants.reduce((total, variant) => total + variant.stockQuantity, 0)
+    : product.stockQuantity;
+}
+
 function renderProductRows() {
   const query = productSearch.value.trim().toLocaleLowerCase("vi");
   const visibleProducts = productsInCategory(selectedProductCategory).filter((product) =>
@@ -279,8 +285,9 @@ function renderProductRows() {
     price.className = "product-table-price";
     price.textContent = `${new Intl.NumberFormat("vi-VN").format(product.price)} ₫`;
     const stockCell = document.createElement("td");
-    stockCell.className = `product-stock-cell${product.stockQuantity === 0 ? " is-out-of-stock" : ""}`;
-    stockCell.textContent = `${new Intl.NumberFormat("vi-VN").format(product.stockQuantity)} sản phẩm`;
+    const stockQuantity = productStockQuantity(product);
+    stockCell.className = `product-stock-cell${stockQuantity === 0 ? " is-out-of-stock" : ""}`;
+    stockCell.textContent = `${new Intl.NumberFormat("vi-VN").format(stockQuantity)} sản phẩm`;
     const statusCell = document.createElement("td");
     const status = document.createElement("span");
     status.className = `product-visibility ${product.isActive ? "is-active" : "is-inactive"}`;
@@ -306,7 +313,9 @@ function renderProductRows() {
     return row;
   }));
   document.querySelector(".empty-products").hidden = visibleProducts.length > 0;
-  productCount.textContent = `Đang hiển thị ${visibleProducts.length} sản phẩm`;
+  const totalStock = visibleProducts.reduce((total, product) => total + productStockQuantity(product), 0);
+  productCount.textContent =
+    `Đang hiển thị ${visibleProducts.length} sản phẩm · Tổng tồn kho ${new Intl.NumberFormat("vi-VN").format(totalStock)} sản phẩm`;
   renderProductCategoryFilters();
 }
 
