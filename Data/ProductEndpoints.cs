@@ -451,12 +451,37 @@ public static class ProductEndpoints
         var adminOrders = app.MapGroup("/api/admin/orders")
             .RequireAuthorization(policy => policy.RequireRole(RoleNames.Admin));
 
-        adminOrders.MapGet("/", async (ApplicationDbContext database, CancellationToken cancellationToken) =>
+        adminOrders.MapGet("/", async (
+            int? page,
+            int? pageSize,
+            string? search,
+            ApplicationDbContext database,
+            CancellationToken cancellationToken) =>
         {
-            var orders = await database.StoreOrders
-                .AsNoTracking()
+            var pageNumber = Math.Max(1, page ?? 1);
+            var size = Math.Clamp(pageSize ?? 20, 1, 100);
+            var term = search?.Trim();
+            var query = database.StoreOrders.AsNoTracking();
+            if (!string.IsNullOrWhiteSpace(term))
+            {
+                var idSearchTerm = term.StartsWith("#AS-", StringComparison.OrdinalIgnoreCase)
+                    ? term[4..]
+                    : term.StartsWith("AS-", StringComparison.OrdinalIgnoreCase) ? term[3..] : term;
+                int? numericOrderId = int.TryParse(idSearchTerm, out var parsedOrderId) ? parsedOrderId : null;
+                query = query.Where(order => order.CustomerName.Contains(term)
+                    || order.PhoneNumber.Contains(term)
+                    || (numericOrderId.HasValue && order.Id == numericOrderId.Value));
+            }
+
+            var totalCount = await query.CountAsync(cancellationToken);
+            var totalPages = (int)Math.Ceiling(totalCount / (double)size);
+            pageNumber = totalPages == 0 ? 1 : Math.Min(pageNumber, totalPages);
+            var orders = await query
                 .Include(order => order.Items)
                 .OrderByDescending(order => order.CreatedAtUtc)
+                .ThenByDescending(order => order.Id)
+                .Skip((pageNumber - 1) * size)
+                .Take(size)
                 .Select(order => new OrderResponse(
                     order.Id,
                     order.CustomerName,
@@ -468,7 +493,7 @@ public static class ProductEndpoints
                     order.Items.Select(item => new OrderItemResponse(item.ProductName, item.ProductImageUrl, item.Variant, item.Color, item.Quantity, item.UnitPrice)).ToList()))
                 .ToListAsync(cancellationToken);
 
-            return Results.Ok(orders);
+            return Results.Ok(new { items = orders, page = pageNumber, pageSize = size, totalCount, totalPages });
         });
 
         adminOrders.MapPut("/{id:int}/status", async (

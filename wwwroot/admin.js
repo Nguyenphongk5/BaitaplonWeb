@@ -16,6 +16,9 @@ let adminToastTimeout;
 let products = [];
 let orders = [];
 let orderRows = [];
+let orderPageInfo = { page: 1, pageSize: 20, totalCount: 0, totalPages: 0 };
+let orderLoadSequence = 0;
+let orderSearchTimeout;
 let antiforgeryToken;
 let selectedProductCategory = "all";
 
@@ -65,19 +68,6 @@ function allowedStatuses(status) {
     Completed: ["Completed"],
     Cancelled: ["Cancelled"]
   }[status] ?? [status];
-}
-
-function applyOrderSearch() {
-  const query = orderSearch.value.trim().toLocaleLowerCase("vi");
-  let visibleRows = 0;
-  orderRows.forEach((row) => {
-    const matches = row.textContent.toLocaleLowerCase("vi").includes(query);
-    row.hidden = !matches;
-    if (matches) visibleRows += 1;
-  });
-  emptyOrders.hidden = visibleRows > 0;
-  document.querySelector(".order-count").textContent =
-    `Đang hiển thị ${visibleRows} trên ${orders.length} đơn hàng`;
 }
 
 function renderOrders() {
@@ -136,12 +126,80 @@ function renderOrders() {
     return row;
   });
   ordersTableBody.replaceChildren(...orderRows);
-  document.querySelector(".nav-count").textContent = String(orders.length);
-  applyOrderSearch();
+  emptyOrders.hidden = orders.length > 0;
+  document.querySelector(".nav-count").textContent = String(orderPageInfo.totalCount);
+  const firstItem = orderPageInfo.totalCount === 0 ? 0 : (orderPageInfo.page - 1) * orderPageInfo.pageSize + 1;
+  const lastItem = Math.min(orderPageInfo.page * orderPageInfo.pageSize, orderPageInfo.totalCount);
+  document.querySelector(".order-count").textContent =
+    `Đang hiển thị ${firstItem}–${lastItem} trên ${orderPageInfo.totalCount} đơn hàng`;
+  renderOrderPagination();
 }
 
-async function loadOrders() {
-  orders = await requestProductApi("/api/admin/orders");
+function renderOrderPagination() {
+  const pagination = document.querySelector(".orders-pagination");
+  const { page, totalPages } = orderPageInfo;
+  if (totalPages <= 1) {
+    pagination.replaceChildren();
+    return;
+  }
+
+  const buttons = [];
+  const addPage = (pageNumber) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = String(pageNumber);
+    button.setAttribute("aria-label", `Trang ${pageNumber}`);
+    if (pageNumber === page) {
+      button.className = "page-current";
+      button.setAttribute("aria-current", "page");
+    }
+    button.addEventListener("click", () => loadOrders(pageNumber));
+    buttons.push(button);
+  };
+  const addEllipsis = () => {
+    const ellipsis = document.createElement("span");
+    ellipsis.textContent = "…";
+    buttons.push(ellipsis);
+  };
+  const previous = document.createElement("button");
+  previous.type = "button";
+  previous.textContent = "‹";
+  previous.setAttribute("aria-label", "Trang trước");
+  previous.disabled = page <= 1;
+  previous.addEventListener("click", () => loadOrders(page - 1));
+  buttons.push(previous);
+
+  const start = Math.max(1, page - 2);
+  const end = Math.min(totalPages, page + 2);
+  if (start > 1) {
+    addPage(1);
+    if (start > 2) addEllipsis();
+  }
+  for (let pageNumber = start; pageNumber <= end; pageNumber += 1) addPage(pageNumber);
+  if (end < totalPages) {
+    if (end < totalPages - 1) addEllipsis();
+    addPage(totalPages);
+  }
+
+  const next = document.createElement("button");
+  next.type = "button";
+  next.textContent = "›";
+  next.setAttribute("aria-label", "Trang sau");
+  next.disabled = page >= totalPages;
+  next.addEventListener("click", () => loadOrders(page + 1));
+  buttons.push(next);
+  pagination.replaceChildren(...buttons);
+}
+
+async function loadOrders(page = 1) {
+  const requestSequence = ++orderLoadSequence;
+  const query = new URLSearchParams({ page: String(page), pageSize: String(orderPageInfo.pageSize) });
+  const search = orderSearch.value.trim();
+  if (search) query.set("search", search);
+  const result = await requestProductApi(`/api/admin/orders?${query}`);
+  if (requestSequence !== orderLoadSequence) return;
+  orders = result.items;
+  orderPageInfo = result;
   renderOrders();
 }
 
@@ -165,7 +223,7 @@ ordersTableBody.addEventListener("change", async (event) => {
       body: JSON.stringify({ status: newStatus })
     });
     order.status = newStatus;
-    renderOrders();
+    await loadOrders(orderPageInfo.page);
     await loadProducts();
     showAdminToast(newStatus === "Cancelled"
       ? "Đơn đã hủy, số lượng đã được hoàn lại kho."
@@ -563,7 +621,10 @@ document.querySelectorAll(".sidebar-link").forEach((link) => {
   });
 });
 
-orderSearch.addEventListener("input", applyOrderSearch);
+orderSearch.addEventListener("input", () => {
+  window.clearTimeout(orderSearchTimeout);
+  orderSearchTimeout = window.setTimeout(() => loadOrders(1).catch((error) => showAdminToast(error.message)), 250);
+});
 
 const periodValues = {
   "12 tháng qua": [
@@ -624,22 +685,6 @@ document.querySelector(".date-button").addEventListener("click", () => {
 
 document.querySelector(".notification-button").addEventListener("click", () => {
   showAdminToast("Bạn có 3 thông báo mới từ cửa hàng.");
-});
-
-document.querySelectorAll(".pagination button:not(:disabled)").forEach((button) => {
-  button.addEventListener("click", () => {
-    if (button.hasAttribute("aria-label")) {
-      showAdminToast("Đây là dữ liệu mẫu của giao diện quản trị.");
-      return;
-    }
-    document.querySelectorAll(".pagination button").forEach((item) => {
-      item.classList.remove("page-current");
-      item.removeAttribute("aria-current");
-    });
-    button.classList.add("page-current");
-    button.setAttribute("aria-current", "page");
-    showAdminToast("Dữ liệu mẫu chỉ có 4 đơn hàng gần nhất.");
-  });
 });
 
 document.querySelectorAll(".row-more").forEach((button) => {
