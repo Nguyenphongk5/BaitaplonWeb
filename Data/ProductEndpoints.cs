@@ -451,6 +451,80 @@ public static class ProductEndpoints
         var adminOrders = app.MapGroup("/api/admin/orders")
             .RequireAuthorization(policy => policy.RequireRole(RoleNames.Admin));
 
+        app.MapGet("/api/admin/reports", async (
+            ApplicationDbContext database,
+            CancellationToken cancellationToken) =>
+        {
+            var now = DateTime.UtcNow;
+            var localNow = now.AddHours(7);
+            var currentLocalMonth = new DateTime(localNow.Year, localNow.Month, 1);
+            var chartStartLocal = currentLocalMonth.AddMonths(-11);
+            static DateTime VietnamLocalMonthToUtc(DateTime localMonth) =>
+                DateTime.SpecifyKind(localMonth.AddHours(-7), DateTimeKind.Utc);
+            var currentMonth = VietnamLocalMonthToUtc(currentLocalMonth);
+            var previousMonth = VietnamLocalMonthToUtc(currentLocalMonth.AddMonths(-1));
+            var chartStart = VietnamLocalMonthToUtc(chartStartLocal);
+            var nextMonth = VietnamLocalMonthToUtc(currentLocalMonth.AddMonths(1));
+
+            var currentMonthOrders = database.StoreOrders.Where(order => order.CreatedAtUtc >= currentMonth && order.CreatedAtUtc < nextMonth);
+            var previousMonthOrders = database.StoreOrders.Where(order => order.CreatedAtUtc >= previousMonth && order.CreatedAtUtc < currentMonth);
+            var currentRevenue = await currentMonthOrders
+                .Where(order => order.Status == OrderStatuses.Completed)
+                .SumAsync(order => (long?)order.TotalAmount, cancellationToken) ?? 0;
+            var currentOrderCount = await currentMonthOrders.CountAsync(cancellationToken);
+            var currentAverageOrder = currentOrderCount == 0 ? 0 : await currentMonthOrders
+                .AverageAsync(order => (long?)order.TotalAmount, cancellationToken) ?? 0;
+            var previousRevenue = await previousMonthOrders
+                .Where(order => order.Status == OrderStatuses.Completed)
+                .SumAsync(order => (long?)order.TotalAmount, cancellationToken) ?? 0;
+            var previousOrderCount = await previousMonthOrders.CountAsync(cancellationToken);
+            var activeProductCount = await database.Products.CountAsync(product => product.IsActive, cancellationToken);
+
+            var monthlyOrders = await database.StoreOrders
+                .AsNoTracking()
+                .Where(order => order.CreatedAtUtc >= chartStart && order.CreatedAtUtc < nextMonth)
+                .GroupBy(order => new { Year = order.CreatedAtUtc.AddHours(7).Year, Month = order.CreatedAtUtc.AddHours(7).Month })
+                .Select(group => new
+                {
+                    group.Key.Year,
+                    group.Key.Month,
+                    OrderCount = group.Count(),
+                    Revenue = group.Where(order => order.Status == OrderStatuses.Completed).Sum(order => (long?)order.TotalAmount) ?? 0
+                })
+                .ToListAsync(cancellationToken);
+
+            var monthly = Enumerable.Range(0, 12).Select(offset =>
+            {
+                var month = chartStartLocal.AddMonths(offset);
+                var data = monthlyOrders.SingleOrDefault(item => item.Year == month.Year && item.Month == month.Month);
+                return new { year = month.Year, month = month.Month, orderCount = data?.OrderCount ?? 0, revenue = data?.Revenue ?? 0 };
+            }).ToList();
+
+            var topProducts = await database.StoreOrderItems
+                .AsNoTracking()
+                .Where(item => item.Order != null && item.Order.Status == OrderStatuses.Completed)
+                .GroupBy(item => new { item.ProductId, item.ProductName })
+                .Select(group => new
+                {
+                    productId = group.Key.ProductId,
+                    name = group.Key.ProductName,
+                    quantity = group.Sum(item => item.Quantity),
+                    revenue = group.Sum(item => item.UnitPrice * item.Quantity)
+                })
+                .OrderByDescending(item => item.quantity)
+                .Take(5)
+                .ToListAsync(cancellationToken);
+
+            return Results.Ok(new
+            {
+                generatedAtUtc = now,
+                currentMonth = new { revenue = currentRevenue, orderCount = currentOrderCount, averageOrderValue = currentAverageOrder, activeProductCount },
+                previousMonth = new { revenue = previousRevenue, orderCount = previousOrderCount },
+                monthly,
+                topProducts
+            });
+        }).RequireAuthorization(policy => policy.RequireRole(RoleNames.Admin));
+
         adminOrders.MapGet("/", async (ApplicationDbContext database, CancellationToken cancellationToken) =>
         {
             var orders = await database.StoreOrders
