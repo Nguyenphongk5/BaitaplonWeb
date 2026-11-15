@@ -27,43 +27,25 @@ function formatPrice(price) {
 
 function renderVariants(product) {
   const isShoe = ["tennis", "running", "lifestyle", "shoes"].includes(product.category);
-  const isClothing = product.category === "clothing";
   const stockedVariants = product.variants ?? [];
   const hasColorVariants = stockedVariants.length > 0;
-  if (!hasColorVariants && !isShoe && !isClothing) return;
-
-  const variants = hasColorVariants
-    ? [...new Set(stockedVariants.map((variant) => variant.size))].sort((a, b) => a.localeCompare(b, "vi", { numeric: true }))
-    : isShoe
-      ? ["39", "40", "40.5", "41", "41.5", "42", "42.5", "43", "44", "45"]
-      : ["S", "M", "L", "XL", "XXL"];
-  detailVariant.hidden = false;
   const colorSection = document.querySelector(".detail-color");
-  colorSection.hidden = !hasColorVariants;
-  detailVariantLabel.textContent = isShoe ? "Chọn size giày" : "Chọn kích cỡ";
-  document.querySelector(".size-guide").hidden = !isShoe;
-  detailVariantOptions.setAttribute("aria-label", detailVariantLabel.textContent);
   if (!hasColorVariants) {
-    detailVariantOptions.replaceChildren(...variants.map((variant, index) => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = `detail-variant-option${index === 0 ? " is-active" : ""}`;
-      button.textContent = variant;
-      button.setAttribute("aria-pressed", String(index === 0));
-      button.addEventListener("click", () => {
-        selectedVariant = variant;
-        detailVariantOptions.querySelectorAll("button").forEach((option) => {
-          const active = option === button;
-          option.classList.toggle("is-active", active);
-          option.setAttribute("aria-pressed", String(active));
-        });
-      });
-      return button;
-    }));
-    selectedVariant = variants[0];
+    detailVariant.hidden = true;
+    colorSection.hidden = true;
+    selectedColor = "";
+    selectedSize = "";
+    selectedVariant = "";
     return;
   }
 
+  const variants = [...new Set(stockedVariants.map((variant) => variant.size))]
+    .sort((a, b) => a.localeCompare(b, "vi", { numeric: true }));
+  detailVariant.hidden = false;
+  colorSection.hidden = false;
+  detailVariantLabel.textContent = isShoe ? "Chọn size giày" : "Chọn kích cỡ";
+  document.querySelector(".size-guide").hidden = !isShoe;
+  detailVariantOptions.setAttribute("aria-label", detailVariantLabel.textContent);
   const colors = [...new Map(stockedVariants.map((variant) => [variant.color, {
     name: variant.color,
     hex: variant.colorHex,
