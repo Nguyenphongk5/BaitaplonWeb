@@ -10,6 +10,9 @@ const productCategoryFilters = document.querySelector(".product-category-filters
 const productDialog = document.querySelector(".admin-product-dialog");
 const productForm = document.querySelector(".admin-product-form");
 const productFormError = document.querySelector(".product-form-error");
+const productImageFile = document.querySelector(".product-image-file");
+const productImageUrl = document.querySelector(".product-image-url");
+const productImagePreview = document.querySelector(".product-image-preview");
 const productCount = document.querySelector(".product-count");
 const productColorGroups = document.querySelector(".product-color-groups");
 let adminToastTimeout;
@@ -180,10 +183,11 @@ ordersTableBody.addEventListener("change", async (event) => {
 });
 
 async function requestProductApi(path, options = {}) {
+  const isFormData = options.body instanceof FormData;
   const response = await fetch(path, {
     ...options,
     headers: {
-      ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...(options.body && !isFormData ? { "Content-Type": "application/json" } : {}),
       ...(options.headers ?? {})
     }
   });
@@ -203,6 +207,55 @@ async function requestProductApi(path, options = {}) {
 
   return response.status === 204 ? null : response.json();
 }
+
+let productImagePreviewObjectUrl;
+
+function showProductImagePreview(imageUrl) {
+  if (productImagePreviewObjectUrl) {
+    URL.revokeObjectURL(productImagePreviewObjectUrl);
+    productImagePreviewObjectUrl = undefined;
+  }
+  if (!imageUrl) {
+    productImagePreview.removeAttribute("src");
+    productImagePreview.hidden = true;
+    return;
+  }
+  productImagePreview.src = imageUrl;
+  productImagePreview.hidden = false;
+}
+
+productImageUrl.addEventListener("input", () => {
+  if (!productImageFile.files?.length) showProductImagePreview(productImageUrl.value.trim());
+});
+
+productImageFile.addEventListener("change", () => {
+  const file = productImageFile.files?.[0];
+  if (!file) {
+    productImageFile.setCustomValidity("");
+    productImageUrl.required = true;
+    showProductImagePreview(productImageUrl.value.trim());
+    return;
+  }
+
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+  if (!allowedTypes.includes(file.type)) {
+    productImageFile.setCustomValidity("Chỉ chấp nhận ảnh JPEG, PNG hoặc WebP.");
+    showProductImagePreview("");
+    return;
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    productImageFile.setCustomValidity("Ảnh không được lớn hơn 5 MB.");
+    showProductImagePreview("");
+    return;
+  }
+
+  productImageFile.setCustomValidity("");
+  productImageUrl.required = false;
+  showProductImagePreview("");
+  productImagePreviewObjectUrl = URL.createObjectURL(file);
+  productImagePreview.src = productImagePreviewObjectUrl;
+  productImagePreview.hidden = false;
+});
 
 async function getAntiforgeryToken() {
   if (!antiforgeryToken) {
@@ -326,6 +379,7 @@ async function loadProducts() {
 
 function openProductDialog(product = null) {
   productForm.reset();
+  productImageFile.setCustomValidity("");
   productFormError.hidden = true;
   productFormError.textContent = "";
   productForm.dataset.productId = product?.id ?? "";
@@ -334,6 +388,8 @@ function openProductDialog(product = null) {
   productForm.elements.category.value = product?.category ?? "tennis";
   productForm.elements.price.value = product?.price ?? "";
   productForm.elements.imageUrl.value = product?.imageUrl ?? "";
+  productImageUrl.required = true;
+  showProductImagePreview(product?.imageUrl ?? "");
   productForm.elements.badge.value = product?.badge ?? "";
   productForm.elements.stockQuantity.value = product?.stockQuantity ?? 10;
   productForm.elements.isActive.checked = product?.isActive ?? true;
@@ -524,6 +580,17 @@ productForm.addEventListener("submit", async (event) => {
 
   try {
     const token = await getAntiforgeryToken();
+    const imageFile = formData.get("imageFile");
+    if (imageFile instanceof File && imageFile.size > 0) {
+      const uploadForm = new FormData();
+      uploadForm.set("file", imageFile, imageFile.name);
+      const uploadedImage = await requestProductApi("/api/admin/products/images", {
+        method: "POST",
+        headers: { RequestVerificationToken: token },
+        body: uploadForm
+      });
+      payload.imageUrl = uploadedImage.imageUrl;
+    }
     const savedProduct = await requestProductApi(
       productId ? `/api/admin/products/${productId}` : "/api/admin/products",
       {

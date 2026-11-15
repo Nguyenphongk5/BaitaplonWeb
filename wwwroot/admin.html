@@ -217,8 +217,10 @@
         </div>
         <div class="product-color-groups"></div>
       </section>
-      <label>Đường dẫn ảnh<input name="imageUrl" required maxlength="500" placeholder="/img/shoe-white.jpg"></label>
-      <p class="product-image-help">Dùng ảnh trong thư mục img (ví dụ /img/shoe-white.jpg) hoặc đường dẫn HTTPS.</p>
+      <label>Chọn ảnh từ máy<input class="product-image-file" name="imageFile" type="file" accept="image/jpeg,image/png,image/webp"></label>
+      <img class="product-image-preview" alt="Xem trước ảnh sản phẩm" hidden>
+      <p class="product-image-help">JPEG, PNG hoặc WebP · tối đa 5 MB. Ảnh sẽ được tải lên khi lưu sản phẩm.</p>
+      <label>Hoặc dùng đường dẫn ảnh<input class="product-image-url" name="imageUrl" required maxlength="500" placeholder="/img/shoe-white.jpg"></label>
       <label class="product-active-option"><input name="isActive" type="checkbox" checked><span>Hiển thị sản phẩm trên cửa hàng</span></label>
       <p class="product-form-error" role="alert" hidden></p>
       <div class="product-dialog-actions">

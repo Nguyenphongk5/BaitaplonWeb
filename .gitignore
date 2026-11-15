@@ -8,3 +8,4 @@ obj/
 *.db-shm
 *.db-wal
 appsettings.Development.json
+wwwroot/uploads/products/
