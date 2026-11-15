@@ -1,0 +1,25 @@
+:root { color-scheme: light; font-family: "DM Sans", Arial, sans-serif; color: #22252d; background: #f7f7f5; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+a { color: inherit; }
+.info-header { display: flex; min-height: 76px; align-items: center; justify-content: space-between; gap: 20px; padding: 0 max(24px, calc((100vw - 1120px) / 2)); border-bottom: 1px solid #e8e7e3; background: #fff; }
+.info-brand { color: #17181c; font-size: 15px; font-weight: 900; letter-spacing: .11em; line-height: 1.05; text-decoration: none; }
+.info-brand span { color: #c91236; }
+.info-nav { display: flex; flex-wrap: wrap; gap: 22px; color: #62646b; font-size: 12px; }
+.info-nav a { text-decoration: none; }
+.info-nav a:hover { color: #c91236; }
+.info-main { width: min(960px, calc(100% - 40px)); margin: 48px auto 72px; }
+.info-eyebrow { margin: 0 0 10px; color: #c91236; font-size: 10px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+.info-main h1 { margin: 0; font-size: clamp(32px, 5vw, 52px); letter-spacing: -.055em; }
+.info-intro { max-width: 680px; margin: 14px 0 32px; color: #70727a; font-size: 15px; line-height: 1.75; }
+.info-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.info-card { padding: 24px; border: 1px solid #e9e8e4; border-radius: 14px; background: #fff; }
+.info-card h2 { margin: 0 0 12px; font-size: 17px; letter-spacing: -.025em; }
+.info-card p, .info-card li { color: #656770; font-size: 13px; line-height: 1.75; }
+.info-card p:last-child { margin-bottom: 0; }
+.info-card a { color: #bd1033; font-weight: 700; text-underline-offset: 3px; }
+.info-card ul, .info-card ol { display: grid; gap: 8px; padding-left: 20px; }
+.info-section { scroll-margin-top: 24px; margin-top: 18px; }
+.info-callout { padding: 17px 20px; border-left: 3px solid #c91236; border-radius: 8px; color: #575963; background: #fff; font-size: 13px; line-height: 1.7; }
+.info-footer { padding: 24px; border-top: 1px solid #e8e7e3; color: #83858b; background: #fff; font-size: 11px; text-align: center; }
+@media (max-width: 620px) { .info-header { align-items: flex-start; flex-direction: column; padding: 18px 20px; } .info-nav { gap: 12px 16px; } .info-main { margin-top: 32px; } .info-grid { grid-template-columns: 1fr; } .info-card { padding: 20px; } }
