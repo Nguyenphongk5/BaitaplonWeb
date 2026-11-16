@@ -9,29 +9,23 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="admin.css?v=multi-color-size-editor">
-  <script src="admin.js?v=variant-stock-total" defer></script>
+  <link rel="stylesheet" href="/admin.css?v=multi-color-size-editor">
+  <script src="/admin.js?v=variant-stock-total" defer></script>
 </head>
-<body>
+<body data-admin-page="overview">
   <div class="admin-layout">
     <aside class="sidebar" id="admin-sidebar">
-      <a class="admin-brand" href="admin.html" aria-label="Authentic Shoes Admin">
+      <a class="admin-brand" href="/admin" aria-label="Authentic Shoes Admin">
         <span class="admin-brand-mark"><i></i><i></i></span>
         <span><strong>AUTHENTIC</strong><small>SHOES · ADMIN</small></span>
       </a>
       <div class="sidebar-label">MENU CHÍNH</div>
       <nav class="sidebar-nav" aria-label="Menu quản trị">
-        <a class="sidebar-link is-active" href="#overview"><span class="sidebar-icon">▦</span><span>Tổng quan</span><span class="nav-indicator">4</span></a>
-        <a class="sidebar-link" href="#orders"><span class="sidebar-icon">▣</span><span>Đơn hàng</span><span class="nav-count">0</span></a>
-        <a class="sidebar-link" href="#product-management"><span class="sidebar-icon">◈</span><span>Sản phẩm</span></a>
-        <a class="sidebar-link" href="#product-categories"><span class="sidebar-icon">▤</span><span>Danh mục</span></a>
-        <a class="sidebar-link" href="#customers"><span class="sidebar-icon">♙</span><span>Khách hàng</span></a>
-        <a class="sidebar-link" href="#analytics"><span class="sidebar-icon">▤</span><span>Báo cáo</span></a>
-      </nav>
-      <div class="sidebar-label sidebar-label-second">CỬA HÀNG</div>
-      <nav class="sidebar-nav" aria-label="Cài đặt cửa hàng">
-        <a class="sidebar-link" href="#promotions"><span class="sidebar-icon">◇</span><span>Khuyến mãi</span></a>
-        <a class="sidebar-link" href="#settings"><span class="sidebar-icon">⚙</span><span>Cài đặt</span></a>
+        <a class="sidebar-link is-active" href="/admin"><span class="sidebar-icon">▦</span><span>Tổng quan</span></a>
+        <a class="sidebar-link" href="/admin/orders"><span class="sidebar-icon">▣</span><span>Đơn hàng</span></a>
+        <a class="sidebar-link" href="/admin/products"><span class="sidebar-icon">◈</span><span>Sản phẩm</span></a>
+        <a class="sidebar-link" href="/admin/categories"><span class="sidebar-icon">▤</span><span>Danh mục</span></a>
+        <a class="sidebar-link" href="/admin/reports"><span class="sidebar-icon">▤</span><span>Báo cáo</span></a>
       </nav>
       <div class="sidebar-help">
         <span class="help-icon">✦</span>
@@ -51,11 +45,6 @@
         <button class="sidebar-toggle" type="button" aria-label="Mở menu" aria-expanded="false" aria-controls="admin-sidebar"><span></span><span></span><span></span></button>
         <div class="breadcrumb"><span>Trang quản trị</span><span>/</span><strong>Tổng quan</strong></div>
         <div class="topbar-actions">
-          <label class="top-search">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg>
-            <input id="order-search" type="search" placeholder="Tìm đơn hàng..." aria-label="Tìm đơn hàng">
-            <kbd>⌘ K</kbd>
-          </label>
           <button class="top-icon notification-button" type="button" aria-label="Thông báo"><span>♧</span><i></i></button>
           <span class="topbar-divider"></span>
           <button class="profile-button" type="button"><span class="avatar avatar-profile">AS</span><span><strong>Xin chào, Admin</strong><small>Quản trị viên</small></span><span class="profile-caret">⌄</span></button>
@@ -71,7 +60,7 @@
           </div>
           <div class="heading-actions">
             <button class="date-button" type="button"><span>▣</span> 01 Thg 11, 2026 <span class="date-caret">⌄</span></button>
-            <button class="export-button" type="button"><span>↥</span> Xuất báo cáo</button>
+            <a class="export-button" href="/admin/orders"><span>▣</span> Quản lý đơn hàng</a>
           </div>
         </section>
 
@@ -138,95 +127,14 @@
               <div class="category-row"><span class="category-thumb thumb-green">SD</span><span class="category-copy"><strong>Adidas Samba OG</strong><small>Adidas · Original</small></span><span class="category-sold">123 <small>đôi</small></span><span class="category-percent">14,1%</span></div>
               <div class="category-row"><span class="category-thumb thumb-lilac">AS</span><span class="category-copy"><strong>Asics Gel-Kayano 14</strong><small>Asics · Giày chạy bộ</small></span><span class="category-sold">98 <small>đôi</small></span><span class="category-percent">11,2%</span></div>
             </div>
-            <a class="view-all-link" href="#orders">Xem báo cáo sản phẩm <span>→</span></a>
+            <a class="view-all-link" href="/admin/products">Xem danh sách sản phẩm <span>→</span></a>
           </article>
-        </section>
-
-        <section class="panel product-management-panel" id="product-management">
-          <div class="panel-heading product-management-heading">
-            <div><h2>Quản lý sản phẩm</h2><p>Sản phẩm tại đây được đồng bộ với trang cửa hàng</p></div>
-            <button class="export-button add-product-button" type="button">＋ Thêm sản phẩm</button>
-          </div>
-          <label class="product-search">
-            <span aria-hidden="true">⌕</span>
-            <input id="product-search" type="search" placeholder="Tìm tên hoặc thương hiệu..." aria-label="Tìm sản phẩm">
-          </label>
-          <div class="product-category-area" id="product-categories">
-            <div class="product-category-heading"><h3>Danh mục sản phẩm</h3><span>Chọn danh mục để xem sản phẩm bên trong</span></div>
-            <div class="product-category-filters" role="group" aria-label="Lọc sản phẩm theo danh mục"></div>
-          </div>
-          <div class="product-table-wrap">
-            <table class="product-table">
-              <thead><tr><th>SẢN PHẨM</th><th>DANH MỤC</th><th>GIÁ BÁN</th><th>TỒN KHO</th><th>TRẠNG THÁI</th><th>THAO TÁC</th></tr></thead>
-              <tbody class="product-table-body"></tbody>
-            </table>
-            <p class="empty-products" hidden>Không tìm thấy sản phẩm.</p>
-          </div>
-          <div class="product-table-footer"><span class="product-count">Đang tải sản phẩm...</span></div>
-        </section>
-
-        <section class="panel orders-panel" id="orders">
-          <div class="panel-heading orders-heading">
-            <div><h2>Đơn hàng</h2><p>Đơn đặt tại cửa hàng · COD · Cập nhật trạng thái và hoàn kho khi hủy</p></div>
-            <a class="view-orders" href="#orders">Tất cả đơn hàng <span>→</span></a>
-          </div>
-          <div class="orders-table-wrap">
-            <table class="orders-table">
-              <thead><tr><th>MÃ ĐƠN HÀNG</th><th>KHÁCH HÀNG</th><th>NGÀY ĐẶT</th><th>SẢN PHẨM</th><th>TỔNG TIỀN (COD)</th><th>TRẠNG THÁI</th></tr></thead>
-              <tbody class="orders-table-body"></tbody>
-            </table>
-            <p class="empty-orders" hidden>Không tìm thấy đơn hàng phù hợp.</p>
-          </div>
-          <div class="table-footer"><span class="order-count">Đang tải đơn hàng...</span></div>
         </section>
 
         <footer class="dashboard-footer"><span>© 2026 Authentic Shoes Admin</span><span>Được thiết kế với <b>♥</b> dành cho cửa hàng của bạn</span></footer>
       </main>
     </div>
   </div>
-  <dialog class="admin-product-dialog" aria-labelledby="product-dialog-title">
-    <form class="admin-product-form">
-      <div class="product-dialog-heading">
-        <div><p class="page-eyebrow">KHO SẢN PHẨM</p><h2 id="product-dialog-title">Thêm sản phẩm</h2></div>
-        <button class="close-product-dialog" type="button" aria-label="Đóng">×</button>
-      </div>
-      <label>Tên sản phẩm<input name="name" required minlength="2" maxlength="160" autocomplete="off"></label>
-      <div class="product-form-row">
-        <label>Thương hiệu<input name="brand" required maxlength="80" autocomplete="off"></label>
-        <label>Danh mục
-          <select name="category" required>
-            <option value="tennis">Tennis</option>
-            <option value="running">Chạy bộ</option>
-            <option value="lifestyle">Lifestyle</option>
-            <option value="clothing">Quần áo</option>
-            <option value="shoes">Giày</option>
-            <option value="pickleball-racket">Vợt Pickleball</option>
-            <option value="accessories">Phụ kiện</option>
-          </select>
-        </label>
-      </div>
-      <div class="product-form-row">
-        <label>Giá bán (₫)<input name="price" type="number" min="1" max="1000000000" step="1" required></label>
-        <label>Nhãn (không bắt buộc)<input name="badge" maxlength="40" placeholder="Ví dụ: MỚI, -15%"></label>
-      </div>
-      <label class="product-legacy-stock-field">Tồn kho (không dùng phân loại)<input name="stockQuantity" type="number" min="0" max="1000000" step="1" required></label>
-      <section class="product-variant-editor">
-        <div class="product-variant-editor-heading">
-          <div><strong>Biến thể màu sắc và size</strong><small>Bấm “Thêm màu sắc”, rồi thêm các size và tồn kho cho từng màu.</small></div>
-          <button class="add-product-color" type="button">+ Thêm màu sắc</button>
-        </div>
-        <div class="product-color-groups"></div>
-      </section>
-      <label>Đường dẫn ảnh<input name="imageUrl" required maxlength="500" placeholder="/img/shoe-white.jpg"></label>
-      <p class="product-image-help">Dùng ảnh trong thư mục img (ví dụ /img/shoe-white.jpg) hoặc đường dẫn HTTPS.</p>
-      <label class="product-active-option"><input name="isActive" type="checkbox" checked><span>Hiển thị sản phẩm trên cửa hàng</span></label>
-      <p class="product-form-error" role="alert" hidden></p>
-      <div class="product-dialog-actions">
-        <button class="dialog-cancel-button" type="button">Hủy</button>
-        <button class="export-button product-save-button" type="submit">Lưu sản phẩm</button>
-      </div>
-    </form>
-  </dialog>
   <div class="admin-toast" role="status" aria-live="polite"></div>
 </body>
 </html>

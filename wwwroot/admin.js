@@ -12,6 +12,7 @@ const productForm = document.querySelector(".admin-product-form");
 const productFormError = document.querySelector(".product-form-error");
 const productCount = document.querySelector(".product-count");
 const productColorGroups = document.querySelector(".product-color-groups");
+const adminPage = document.body.dataset.adminPage;
 let adminToastTimeout;
 let products = [];
 let orders = [];
@@ -29,6 +30,10 @@ const productCategories = [
   { value: "running", label: "Chạy bộ" },
   { value: "lifestyle", label: "Lifestyle" }
 ];
+const requestedProductCategory = new URLSearchParams(window.location.search).get("category");
+if (productCategories.some((category) => category.value === requestedProductCategory)) {
+  selectedProductCategory = requestedProductCategory;
+}
 
 function showAdminToast(message) {
   adminToast.textContent = message;
@@ -145,7 +150,7 @@ async function loadOrders() {
   renderOrders();
 }
 
-ordersTableBody.addEventListener("change", async (event) => {
+ordersTableBody?.addEventListener("change", async (event) => {
   const select = event.target.closest(".order-status-select");
   if (!select) return;
   const row = select.closest("tr");
@@ -166,7 +171,6 @@ ordersTableBody.addEventListener("change", async (event) => {
     });
     order.status = newStatus;
     renderOrders();
-    await loadProducts();
     showAdminToast(newStatus === "Cancelled"
       ? "Đơn đã hủy, số lượng đã được hoàn lại kho."
       : `Đã cập nhật trạng thái: ${statusLabel(newStatus)}.`);
@@ -189,7 +193,8 @@ async function requestProductApi(path, options = {}) {
   });
 
   if (response.status === 401 || response.status === 403) {
-    window.location.href = "/login?ReturnUrl=%2Fadmin";
+    const returnUrl = encodeURIComponent(`${window.location.pathname}${window.location.search}`);
+    window.location.href = `/login?ReturnUrl=${returnUrl}`;
     throw new Error("Phiên đăng nhập quản trị đã hết hạn.");
   }
 
@@ -246,6 +251,39 @@ function renderProductCategoryFilters() {
     button.append(label, count);
     return button;
   }));
+}
+
+function renderCategoryCards() {
+  const categoryCards = document.querySelector(".category-cards");
+  if (!categoryCards) return;
+
+  categoryCards.replaceChildren(...productCategories
+    .filter((category) => category.value !== "all")
+    .map((category, index) => {
+      const categoryProducts = productsInCategory(category.value);
+      const activeProducts = categoryProducts.filter((product) => product.isActive).length;
+      const card = document.createElement("article");
+      card.className = "category-card";
+
+      const icon = document.createElement("span");
+      icon.className = `category-card-icon category-card-icon-${index % 4}`;
+      icon.setAttribute("aria-hidden", "true");
+      icon.textContent = ["◈", "▤", "◉", "◇"][index % 4];
+
+      const label = document.createElement("h2");
+      label.textContent = category.label;
+      const count = document.createElement("strong");
+      count.textContent = `${categoryProducts.length} sản phẩm`;
+      const status = document.createElement("p");
+      status.textContent = `${activeProducts} đang bán · ${categoryProducts.length - activeProducts} đang ẩn`;
+
+      const link = document.createElement("a");
+      link.className = "view-all-link";
+      link.href = `/admin/products?category=${encodeURIComponent(category.value)}#product-management`;
+      link.textContent = "Xem sản phẩm →";
+      card.append(icon, label, count, status, link);
+      return card;
+    }));
 }
 
 function productStockQuantity(product) {
@@ -321,7 +359,11 @@ function renderProductRows() {
 
 async function loadProducts() {
   products = await requestProductApi("/api/admin/products");
-  renderProductRows();
+  if (adminPage === "categories") {
+    renderCategoryCards();
+  } else {
+    renderProductRows();
+  }
 }
 
 function openProductDialog(product = null) {
@@ -435,7 +477,7 @@ function updateStockFieldVisibility() {
   document.querySelector(".product-legacy-stock-field").hidden = productColorGroups.children.length > 0;
 }
 
-async function initializeProductManagement() {
+async function initializeAdminPage() {
   const response = await fetch("/auth/status");
   if (!response.ok) throw new Error("Không thể kiểm tra quyền quản trị.");
   const account = await response.json();
@@ -443,28 +485,32 @@ async function initializeProductManagement() {
     window.location.href = "/";
     return;
   }
-  await loadProducts();
-  await loadOrders();
+
+  if (adminPage === "products" || adminPage === "categories") {
+    await loadProducts();
+    if (adminPage === "categories") renderCategoryCards();
+  }
+  if (adminPage === "orders") await loadOrders();
 }
 
-initializeProductManagement().catch((error) => {
-  console.error("Could not initialize product management.", error);
+initializeAdminPage().catch((error) => {
+  console.error("Could not initialize admin page.", error);
   showAdminToast(error.message);
 });
 
-document.querySelector(".add-product-button").addEventListener("click", () => openProductDialog());
-document.querySelector(".close-product-dialog").addEventListener("click", () => productDialog.close());
-document.querySelector(".dialog-cancel-button").addEventListener("click", () => productDialog.close());
-document.querySelector(".add-product-color").addEventListener("click", () => addProductColorGroup());
-productSearch.addEventListener("input", renderProductRows);
-productCategoryFilters.addEventListener("click", (event) => {
+document.querySelector(".add-product-button")?.addEventListener("click", () => openProductDialog());
+document.querySelector(".close-product-dialog")?.addEventListener("click", () => productDialog.close());
+document.querySelector(".dialog-cancel-button")?.addEventListener("click", () => productDialog.close());
+document.querySelector(".add-product-color")?.addEventListener("click", () => addProductColorGroup());
+productSearch?.addEventListener("input", renderProductRows);
+productCategoryFilters?.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-category]");
   if (!button) return;
   selectedProductCategory = button.dataset.category;
   renderProductRows();
 });
 
-productTableBody.addEventListener("click", async (event) => {
+productTableBody?.addEventListener("click", async (event) => {
   const button = event.target.closest("button[data-action]");
   if (!button) return;
   const row = button.closest("tr");
@@ -492,7 +538,7 @@ productTableBody.addEventListener("click", async (event) => {
   }
 });
 
-productForm.addEventListener("submit", async (event) => {
+productForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (!productForm.reportValidity()) return;
 
@@ -549,21 +595,19 @@ productForm.addEventListener("submit", async (event) => {
   }
 });
 
-sidebarToggle.addEventListener("click", () => {
+sidebarToggle?.addEventListener("click", () => {
   const isOpen = adminSidebar.classList.toggle("is-open");
   sidebarToggle.setAttribute("aria-expanded", String(isOpen));
 });
 
 document.querySelectorAll(".sidebar-link").forEach((link) => {
   link.addEventListener("click", () => {
-    document.querySelectorAll(".sidebar-link").forEach((item) => item.classList.remove("is-active"));
-    link.classList.add("is-active");
     adminSidebar.classList.remove("is-open");
-    sidebarToggle.setAttribute("aria-expanded", "false");
+    sidebarToggle?.setAttribute("aria-expanded", "false");
   });
 });
 
-orderSearch.addEventListener("input", applyOrderSearch);
+orderSearch?.addEventListener("input", applyOrderSearch);
 
 const periodValues = {
   "12 tháng qua": [
@@ -589,7 +633,7 @@ const periodButton = document.querySelector(".period-button");
 const periodOptions = Object.keys(periodValues);
 let activePeriod = 0;
 
-periodButton.addEventListener("click", () => {
+periodButton?.addEventListener("click", () => {
   activePeriod = (activePeriod + 1) % periodOptions.length;
   const period = periodOptions[activePeriod];
   periodButton.innerHTML = `${period} <span>⌄</span>`;
@@ -601,7 +645,26 @@ periodButton.addEventListener("click", () => {
   showAdminToast(`Đã cập nhật biểu đồ: ${period.toLocaleLowerCase("vi")}.`);
 });
 
-document.querySelector(".export-button").addEventListener("click", () => {
+document.querySelector(".report-export-button")?.addEventListener("click", () => {
+  if (adminPage === "reports") {
+    const rows = [
+      ["Chỉ số", "Giá trị"],
+      ...[...document.querySelectorAll(".stat-card")].map((card) => [
+        card.querySelector(".stat-label").textContent.trim(),
+        card.querySelector(".stat-value").textContent.trim()
+      ])
+    ];
+    const csv = `\uFEFF${rows.map((row) => row.map((value) => `"${value.replace(/"/g, '""')}"`).join(",")).join("\r\n")}`;
+    const file = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(file);
+    link.download = "authentic-shoes-bao-cao.csv";
+    link.click();
+    URL.revokeObjectURL(link.href);
+    showAdminToast("Đã tải báo cáo cửa hàng dạng CSV.");
+    return;
+  }
+
   const rows = [
     ["Mã đơn hàng", "Khách hàng", "Ngày đặt", "Sản phẩm", "Tổng tiền COD", "Trạng thái"],
     ...orderRows
@@ -618,11 +681,11 @@ document.querySelector(".export-button").addEventListener("click", () => {
   showAdminToast("Đã tải báo cáo đơn hàng dạng CSV.");
 });
 
-document.querySelector(".date-button").addEventListener("click", () => {
+document.querySelector(".date-button")?.addEventListener("click", () => {
   showAdminToast("Dữ liệu đang hiển thị cho ngày 01 Tháng 11, 2026.");
 });
 
-document.querySelector(".notification-button").addEventListener("click", () => {
+document.querySelector(".notification-button")?.addEventListener("click", () => {
   showAdminToast("Bạn có 3 thông báo mới từ cửa hàng.");
 });
 
@@ -649,14 +712,14 @@ document.querySelectorAll(".row-more").forEach((button) => {
   });
 });
 
-document.querySelector(".profile-button").addEventListener("click", () => {
+document.querySelector(".profile-button")?.addEventListener("click", () => {
   window.location.href = "/account";
 });
 
-document.querySelector(".sidebar-account").addEventListener("click", () => {
+document.querySelector(".sidebar-account")?.addEventListener("click", () => {
   window.location.href = "/account";
 });
 
-document.querySelector(".more-button").addEventListener("click", () => {
+document.querySelector(".more-button")?.addEventListener("click", () => {
   showAdminToast("Danh sách đang được sắp xếp theo sản phẩm bán chạy.");
 });

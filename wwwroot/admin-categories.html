@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f6f7fb">
+  <meta name="description" content="Danh mục sản phẩm Authentic Shoes.">
+  <title>Danh mục | Authentic Shoes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/admin.css?v=multi-color-size-editor">
+  <script src="/admin.js?v=variant-stock-total" defer></script>
+</head>
+<body data-admin-page="categories">
+  <div class="admin-layout">
+    <aside class="sidebar" id="admin-sidebar">
+      <a class="admin-brand" href="/admin" aria-label="Authentic Shoes Admin">
+        <span class="admin-brand-mark"><i></i><i></i></span>
+        <span><strong>AUTHENTIC</strong><small>SHOES · ADMIN</small></span>
+      </a>
+      <div class="sidebar-label">MENU CHÍNH</div>
+      <nav class="sidebar-nav" aria-label="Menu quản trị">
+        <a class="sidebar-link" href="/admin"><span class="sidebar-icon">▦</span><span>Tổng quan</span></a>
+        <a class="sidebar-link" href="/admin/orders"><span class="sidebar-icon">▣</span><span>Đơn hàng</span></a>
+        <a class="sidebar-link" href="/admin/products"><span class="sidebar-icon">◈</span><span>Sản phẩm</span></a>
+        <a class="sidebar-link is-active" href="/admin/categories"><span class="sidebar-icon">▤</span><span>Danh mục</span></a>
+        <a class="sidebar-link" href="/admin/reports"><span class="sidebar-icon">▤</span><span>Báo cáo</span></a>
+      </nav>
+      <div class="sidebar-help">
+        <span class="help-icon">✦</span>
+        <strong>Cần hỗ trợ?</strong>
+        <p>Đội ngũ của chúng tôi luôn sẵn sàng giúp bạn.</p>
+        <a href="mailto:service@authenticshoes.com">Liên hệ hỗ trợ <span>→</span></a>
+      </div>
+      <button class="sidebar-account" type="button" aria-label="Tài khoản quản trị">
+        <span class="avatar avatar-admin">AS</span>
+        <span class="account-copy"><strong>Authentic Admin</strong><small>Quản trị viên</small></span>
+        <span class="account-more">···</span>
+      </button>
+    </aside>
+
+    <div class="admin-main">
+      <header class="topbar">
+        <button class="sidebar-toggle" type="button" aria-label="Mở menu" aria-expanded="false" aria-controls="admin-sidebar"><span></span><span></span><span></span></button>
+        <div class="breadcrumb"><span>Trang quản trị</span><span>/</span><strong>Danh mục</strong></div>
+        <div class="topbar-actions">
+          <button class="top-icon notification-button" type="button" aria-label="Thông báo"><span>♧</span><i></i></button>
+          <span class="topbar-divider"></span>
+          <button class="profile-button" type="button"><span class="avatar avatar-profile">AS</span><span><strong>Xin chào, Admin</strong><small>Quản trị viên</small></span><span class="profile-caret">⌄</span></button>
+        </div>
+      </header>
+
+      <main class="dashboard-content">
+        <section class="page-heading">
+          <div>
+            <p class="page-eyebrow">QUẢN LÝ CỬA HÀNG</p>
+            <h1>Danh mục sản phẩm</h1>
+            <p class="page-subtitle">Số lượng sản phẩm theo từng nhóm danh mục trong cửa hàng.</p>
+          </div>
+          <div class="heading-actions">
+            <a class="export-button" href="/admin/products"><span>◈</span> Quản lý sản phẩm</a>
+          </div>
+        </section>
+
+        <section class="category-cards" aria-label="Danh sách danh mục sản phẩm"></section>
+        <footer class="dashboard-footer"><span>© 2026 Authentic Shoes Admin</span><span>Được thiết kế với <b>♥</b> dành cho cửa hàng của bạn</span></footer>
+      </main>
+    </div>
+  </div>
+  <div class="admin-toast" role="status" aria-live="polite"></div>
+</body>
+</html>

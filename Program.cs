@@ -67,15 +67,21 @@ app.UseAntiforgery();
 
 app.Use(async (context, next) =>
 {
-    var path = context.Request.Path.Value;
-    var isAdminPage = string.Equals(path, "/admin", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(path, "/admin.html", StringComparison.OrdinalIgnoreCase);
+    var path = context.Request.Path.Value?.TrimEnd('/') ?? string.Empty;
+    var isAdminPage = path.Equals("/admin.html", StringComparison.OrdinalIgnoreCase)
+        || path.Equals("/admin-orders.html", StringComparison.OrdinalIgnoreCase)
+        || path.Equals("/admin-products.html", StringComparison.OrdinalIgnoreCase)
+        || path.Equals("/admin-categories.html", StringComparison.OrdinalIgnoreCase)
+        || path.Equals("/admin-reports.html", StringComparison.OrdinalIgnoreCase)
+        || path.Equals("/admin", StringComparison.OrdinalIgnoreCase)
+        || path.StartsWith("/admin/", StringComparison.OrdinalIgnoreCase);
 
     if (isAdminPage)
     {
         if (context.User.Identity?.IsAuthenticated != true)
         {
-            context.Response.Redirect("/login?ReturnUrl=%2Fadmin");
+            var returnUrl = Uri.EscapeDataString($"{context.Request.Path}{context.Request.QueryString}");
+            context.Response.Redirect($"/login?ReturnUrl={returnUrl}");
             return;
         }
 
@@ -85,7 +91,22 @@ app.Use(async (context, next) =>
             return;
         }
 
-        context.Request.Path = "/admin.html";
+        var adminPagePath = path.ToLowerInvariant() switch
+        {
+            "/admin" or "/admin.html" => "/admin.html",
+            "/admin/categories" or "/admin-categories.html" => "/admin-categories.html",
+            "/admin/products" or "/admin-products.html" => "/admin-products.html",
+            "/admin/orders" or "/admin-orders.html" => "/admin-orders.html",
+            "/admin/reports" or "/admin-reports.html" => "/admin-reports.html",
+            _ => null
+        };
+        if (adminPagePath is null)
+        {
+            context.Response.StatusCode = StatusCodes.Status404NotFound;
+            return;
+        }
+
+        context.Request.Path = adminPagePath;
     }
 
     await next();
