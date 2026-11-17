@@ -198,11 +198,6 @@ public static class ProductEndpoints
             ApplicationDbContext database,
             CancellationToken cancellationToken) =>
         {
-            if (context.User.Identity?.IsAuthenticated != true)
-            {
-                return Results.Unauthorized();
-            }
-
             if (!await HasValidAntiforgeryToken(context, antiforgery))
             {
                 return Results.BadRequest(new { message = "Phiên đặt hàng không hợp lệ. Hãy tải lại trang và thử lại." });
@@ -321,7 +316,7 @@ public static class ProductEndpoints
             await transaction.CommitAsync(cancellationToken);
 
             return Results.Created($"/api/orders/{order.Id}", new { id = order.Id, order.TotalAmount, order.Status });
-        }).RequireAuthorization();
+        }).AllowAnonymous();
 
         var adminProducts = app.MapGroup("/api/admin/products")
             .RequireAuthorization(policy => policy.RequireRole(RoleNames.Admin));

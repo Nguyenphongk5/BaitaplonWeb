@@ -142,8 +142,12 @@
     itemList.replaceChildren(...rows);
     document.querySelector(".cart-empty").hidden = items.length > 0;
     checkoutForm.hidden = items.length === 0;
-    document.querySelector(".checkout-login-required").hidden = isAuthenticated || items.length === 0;
-    document.querySelector(".checkout-fields").hidden = !isAuthenticated || items.length === 0;
+    document.querySelector(".checkout-fields").hidden = items.length === 0;
+    document.querySelector(".checkout-account-prompt").hidden = items.length === 0;
+    document.querySelector(".checkout-account-message").textContent = isAuthenticated
+      ? "Đơn hàng sẽ được liên kết với tài khoản và xuất hiện trong lịch sử mua hàng của bạn."
+      : "Đặt hàng không cần tài khoản. Đăng nhập để liên kết đơn hàng với lịch sử mua hàng.";
+    document.querySelector(".checkout-login-link").hidden = isAuthenticated;
     const total = items.reduce((sum, item) => {
       const product = products.get(item.productId);
       return sum + (product ? product.price * item.quantity : 0);
@@ -199,9 +203,6 @@
     await ready;
     renderItems();
     dialog.showModal();
-    if (!isAuthenticated && items.length > 0) {
-      showToast("Vui lòng đăng nhập hoặc đăng ký để mua hàng.");
-    }
   }
 
   async function refreshProducts() {
@@ -223,8 +224,6 @@
     const returnUrl = getCurrentReturnUrl();
     document.querySelector(".checkout-login-link").href =
       `/login?${new URLSearchParams({ ReturnUrl: returnUrl })}`;
-    document.querySelector(".checkout-register-link").href =
-      `/register?${new URLSearchParams({ ReturnUrl: returnUrl })}`;
   }
 
   function populateDatalist(id, values) {
@@ -314,12 +313,6 @@
       event.preventDefault();
       checkoutError.hidden = true;
       if (!checkoutForm.reportValidity() || items.length === 0) return;
-      if (!isAuthenticated) {
-        document.querySelector(".checkout-login-required").hidden = false;
-        document.querySelector(".checkout-fields").hidden = true;
-        showToast("Vui lòng đăng nhập hoặc đăng ký để mua hàng.");
-        return;
-      }
 
       const submit = checkoutForm.querySelector(".checkout-submit");
       submit.disabled = true;
@@ -353,12 +346,6 @@
             }))
           })
         });
-        if (response.status === 401) {
-          isAuthenticated = false;
-          renderItems();
-          showToast("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập để mua hàng.");
-          return;
-        }
         const result = await response.json();
         if (!response.ok) {
           throw new Error(result.message || Object.values(result.errors ?? {}).flat().join(" ") || "Không thể đặt hàng.");
