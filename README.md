@@ -11,7 +11,14 @@ dotnet run
 Trang chủ: `/`  
 Đăng ký: `/register`  
 Đăng nhập: `/login`  
-Trang quản trị (chỉ role `Admin`): `/admin`
+Trang quản trị (chỉ role `Admin`):
+- Tổng quan: `/admin`
+- Đơn hàng: `/admin/orders`
+- Sản phẩm: `/admin/products`
+- Danh mục: `/admin/categories`
+- Báo cáo: `/admin/reports`
+
+Tổng quan, đơn hàng, sản phẩm, danh mục và báo cáo là các trang riêng; menu bên trái điều hướng giữa các trang này.
 
 Tài khoản tạo từ biểu mẫu đăng ký được gán role `User`. Ứng dụng dùng SQL Server và tự áp dụng migration khi khởi động. Mặc định, chuỗi kết nối dùng SQL Server LocalDB (`MSSQLLocalDB`) và tạo database `AuthenticShoes`. Nếu dùng SQL Server khác, ghi đè `ConnectionStrings__DefaultConnection` bằng chuỗi kết nối của server và database cần dùng trước khi chạy:
 

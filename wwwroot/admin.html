@@ -9,23 +9,23 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="admin.css?v=multi-color-size-editor">
-  <script src="admin.js?v=variant-stock-total" defer></script>
+  <link rel="stylesheet" href="/admin.css?v=multi-color-size-editor">
+  <script src="/admin.js?v=variant-stock-total" defer></script>
 </head>
-<body>
+<body data-admin-page="overview">
   <div class="admin-layout">
     <aside class="sidebar" id="admin-sidebar">
-      <a class="admin-brand" href="admin.html" aria-label="Authentic Shoes Admin">
+      <a class="admin-brand" href="/admin" aria-label="Authentic Shoes Admin">
         <span class="admin-brand-mark"><i></i><i></i></span>
         <span><strong>AUTHENTIC</strong><small>SHOES · ADMIN</small></span>
       </a>
       <div class="sidebar-label">MENU CHÍNH</div>
       <nav class="sidebar-nav" aria-label="Menu quản trị">
-        <a class="sidebar-link is-active" href="#overview"><span class="sidebar-icon">▦</span><span>Tổng quan</span><span class="nav-indicator">4</span></a>
-        <a class="sidebar-link" href="#orders"><span class="sidebar-icon">▣</span><span>Đơn hàng</span><span class="nav-count">0</span></a>
-        <a class="sidebar-link" href="#product-management"><span class="sidebar-icon">◈</span><span>Sản phẩm</span></a>
-        <a class="sidebar-link" href="#product-categories"><span class="sidebar-icon">▤</span><span>Danh mục</span></a>
-        <a class="sidebar-link" href="#analytics"><span class="sidebar-icon">▤</span><span>Báo cáo</span></a>
+        <a class="sidebar-link is-active" href="/admin"><span class="sidebar-icon">▦</span><span>Tổng quan</span></a>
+        <a class="sidebar-link" href="/admin/orders"><span class="sidebar-icon">▣</span><span>Đơn hàng</span></a>
+        <a class="sidebar-link" href="/admin/products"><span class="sidebar-icon">◈</span><span>Sản phẩm</span></a>
+        <a class="sidebar-link" href="/admin/categories"><span class="sidebar-icon">▤</span><span>Danh mục</span></a>
+        <a class="sidebar-link" href="/admin/reports"><span class="sidebar-icon">▤</span><span>Báo cáo</span></a>
       </nav>
       <div class="sidebar-help">
         <span class="help-icon">✦</span>
@@ -50,6 +50,7 @@
             <input id="order-search" type="search" placeholder="Tìm đơn hàng..." aria-label="Tìm đơn hàng">
             <kbd>⌘ K</kbd>
           </label>
+          <button class="top-icon notification-button" type="button" aria-label="Thông báo"><span>♧</span><i></i></button>
           <span class="topbar-divider"></span>
           <button class="profile-button" type="button"><span class="avatar avatar-profile">AS</span><span><strong>Xin chào, Admin</strong><small>Quản trị viên</small></span><span class="profile-caret">⌄</span></button>
         </div>

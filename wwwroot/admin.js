@@ -14,6 +14,7 @@ const productImageFile = document.querySelector(".product-image-file");
 const productImagePreview = document.querySelector(".product-image-preview");
 const productCount = document.querySelector(".product-count");
 const productColorGroups = document.querySelector(".product-color-groups");
+const adminPage = document.body.dataset.adminPage;
 let adminToastTimeout;
 let products = [];
 let orders = [];
@@ -35,12 +36,21 @@ const productCategories = [
   { value: "running", label: "Chạy bộ" },
   { value: "lifestyle", label: "Lifestyle" }
 ];
+const requestedProductCategory = new URLSearchParams(window.location.search).get("category");
+if (productCategories.some((category) => category.value === requestedProductCategory)) {
+  selectedProductCategory = requestedProductCategory;
+}
 
 function showAdminToast(message) {
   adminToast.textContent = message;
   adminToast.classList.add("is-visible");
   window.clearTimeout(adminToastTimeout);
   adminToastTimeout = window.setTimeout(() => adminToast.classList.remove("is-visible"), 2400);
+}
+
+function protectSpreadsheetCell(value) {
+  const text = String(value ?? "");
+  return /^[\s\uFEFF]*[=+\-@]/.test(text) ? `'${text}` : text;
 }
 
 function statusLabel(status) {
@@ -220,7 +230,7 @@ async function loadDashboard() {
   }).format(now);
 }
 
-ordersTableBody.addEventListener("change", async (event) => {
+ordersTableBody?.addEventListener("change", async (event) => {
   const select = event.target.closest(".order-status-select");
   if (!select) return;
   const row = select.closest("tr");
@@ -265,7 +275,8 @@ async function requestProductApi(path, options = {}) {
   });
 
   if (response.status === 401 || response.status === 403) {
-    window.location.href = "/login?ReturnUrl=%2Fadmin";
+    const returnUrl = encodeURIComponent(`${window.location.pathname}${window.location.search}`);
+    window.location.href = `/login?ReturnUrl=${returnUrl}`;
     throw new Error("Phiên đăng nhập quản trị đã hết hạn.");
   }
 
@@ -296,7 +307,7 @@ function showProductImagePreview(imageUrl) {
   productImagePreview.hidden = false;
 }
 
-productImageFile.addEventListener("change", () => {
+productImageFile?.addEventListener("change", () => {
   const file = productImageFile.files?.[0];
   if (!file) {
     productImageFile.setCustomValidity("");
@@ -365,6 +376,39 @@ function renderProductCategoryFilters() {
     button.append(label, count);
     return button;
   }));
+}
+
+function renderCategoryCards() {
+  const categoryCards = document.querySelector(".category-cards");
+  if (!categoryCards) return;
+
+  categoryCards.replaceChildren(...productCategories
+    .filter((category) => category.value !== "all")
+    .map((category, index) => {
+      const categoryProducts = productsInCategory(category.value);
+      const activeProducts = categoryProducts.filter((product) => product.isActive).length;
+      const card = document.createElement("article");
+      card.className = "category-card";
+
+      const icon = document.createElement("span");
+      icon.className = `category-card-icon category-card-icon-${index % 4}`;
+      icon.setAttribute("aria-hidden", "true");
+      icon.textContent = ["◈", "▤", "◉", "◇"][index % 4];
+
+      const label = document.createElement("h2");
+      label.textContent = category.label;
+      const count = document.createElement("strong");
+      count.textContent = `${categoryProducts.length} sản phẩm`;
+      const status = document.createElement("p");
+      status.textContent = `${activeProducts} đang bán · ${categoryProducts.length - activeProducts} đang ẩn`;
+
+      const link = document.createElement("a");
+      link.className = "view-all-link";
+      link.href = `/admin/products?category=${encodeURIComponent(category.value)}#product-management`;
+      link.textContent = "Xem sản phẩm →";
+      card.append(icon, label, count, status, link);
+      return card;
+    }));
 }
 
 function productStockQuantity(product) {
@@ -440,7 +484,11 @@ function renderProductRows() {
 
 async function loadProducts() {
   products = await requestProductApi("/api/admin/products");
-  renderProductRows();
+  if (adminPage === "categories") {
+    renderCategoryCards();
+  } else {
+    renderProductRows();
+  }
 }
 
 function openProductDialog(product = null) {
@@ -557,7 +605,7 @@ function updateStockFieldVisibility() {
   document.querySelector(".product-legacy-stock-field").hidden = productColorGroups.children.length > 0;
 }
 
-async function initializeProductManagement() {
+async function initializeAdminPage() {
   const response = await fetch("/auth/status");
   if (!response.ok) throw new Error("Không thể kiểm tra quyền quản trị.");
   const account = await response.json();
@@ -565,30 +613,36 @@ async function initializeProductManagement() {
     window.location.href = "/";
     return;
   }
-  await loadProducts();
-  await loadOrders();
-  await loadReports();
-  await loadDashboard();
+  if (adminPage === "overview") {
+    await loadProducts();
+    await loadOrders();
+    await loadReports();
+    await loadDashboard();
+  }
+  if (adminPage === "products" || adminPage === "categories") {
+    await loadProducts();
+  }
+  if (adminPage === "orders") await loadOrders();
 }
 
-initializeProductManagement().catch((error) => {
-  console.error("Could not initialize product management.", error);
+initializeAdminPage().catch((error) => {
+  console.error("Could not initialize admin page.", error);
   showAdminToast(error.message);
 });
 
-document.querySelector(".add-product-button").addEventListener("click", () => openProductDialog());
-document.querySelector(".close-product-dialog").addEventListener("click", () => productDialog.close());
-document.querySelector(".dialog-cancel-button").addEventListener("click", () => productDialog.close());
-document.querySelector(".add-product-color").addEventListener("click", () => addProductColorGroup());
-productSearch.addEventListener("input", renderProductRows);
-productCategoryFilters.addEventListener("click", (event) => {
+document.querySelector(".add-product-button")?.addEventListener("click", () => openProductDialog());
+document.querySelector(".close-product-dialog")?.addEventListener("click", () => productDialog.close());
+document.querySelector(".dialog-cancel-button")?.addEventListener("click", () => productDialog.close());
+document.querySelector(".add-product-color")?.addEventListener("click", () => addProductColorGroup());
+productSearch?.addEventListener("input", renderProductRows);
+productCategoryFilters?.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-category]");
   if (!button) return;
   selectedProductCategory = button.dataset.category;
   renderProductRows();
 });
 
-productTableBody.addEventListener("click", async (event) => {
+productTableBody?.addEventListener("click", async (event) => {
   const button = event.target.closest("button[data-action]");
   if (!button) return;
   const row = button.closest("tr");
@@ -616,7 +670,7 @@ productTableBody.addEventListener("click", async (event) => {
   }
 });
 
-productForm.addEventListener("submit", async (event) => {
+productForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (!productForm.reportValidity()) return;
 
@@ -686,23 +740,56 @@ productForm.addEventListener("submit", async (event) => {
   }
 });
 
-sidebarToggle.addEventListener("click", () => {
+sidebarToggle?.addEventListener("click", () => {
   const isOpen = adminSidebar.classList.toggle("is-open");
   sidebarToggle.setAttribute("aria-expanded", String(isOpen));
 });
 
 document.querySelectorAll(".sidebar-link").forEach((link) => {
   link.addEventListener("click", () => {
-    document.querySelectorAll(".sidebar-link").forEach((item) => item.classList.remove("is-active"));
-    link.classList.add("is-active");
     adminSidebar.classList.remove("is-open");
-    sidebarToggle.setAttribute("aria-expanded", "false");
+    sidebarToggle?.setAttribute("aria-expanded", "false");
   });
 });
 
-orderSearch.addEventListener("input", () => {
+orderSearch?.addEventListener("input", () => {
   window.clearTimeout(orderSearchTimeout);
   orderSearchTimeout = window.setTimeout(() => loadOrders(1).catch((error) => showAdminToast(error.message)), 250);
+});
+
+const periodValues = {
+  "12 tháng qua": [
+    [38, 23], [47, 30], [42, 26], [57, 34], [50, 39], [68, 43],
+    [61, 38], [78, 52], [71, 48], [88, 60], [77, 55], [97, 67]
+  ],
+  "30 ngày qua": [
+    [30, 21], [45, 28], [38, 24], [57, 36], [48, 34], [70, 45],
+    [64, 41], [53, 38], [76, 52], [69, 49], [86, 62], [96, 72]
+  ],
+  "7 ngày qua": [
+    [33, 25], [47, 36], [41, 31], [64, 48], [55, 42], [79, 59],
+    [68, 51], [58, 44], [75, 58], [70, 53], [88, 67], [98, 76]
+  ]
+};
+
+const periodOptions = Object.keys(periodValues);
+const periodButton = adminPage === "reports" ? document.querySelector(".period-button") : null;
+let activePeriod = 0;
+
+document.querySelectorAll(".chart-column").forEach((column) => {
+  column.style.setProperty("--revenue", column.dataset.revenue);
+  column.style.setProperty("--orders", column.dataset.orders);
+});
+periodButton?.addEventListener("click", () => {
+  activePeriod = (activePeriod + 1) % periodOptions.length;
+  const period = periodOptions[activePeriod];
+  periodButton.innerHTML = `${period} <span>⌄</span>`;
+  document.querySelectorAll(".chart-column").forEach((column, index) => {
+    const [revenue, orders] = periodValues[period][index];
+    column.style.setProperty("--revenue", revenue);
+    column.style.setProperty("--orders", orders);
+  });
+  showAdminToast(`Đã cập nhật biểu đồ: ${period.toLocaleLowerCase("vi")}.`);
 });
 
 const reportCurrency = new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", maximumFractionDigits: 0 });
@@ -780,7 +867,7 @@ async function loadReports() {
   }
 }
 
-document.querySelector(".export-report-button").addEventListener("click", () => {
+document.querySelector(".export-report-button")?.addEventListener("click", () => {
   if (!reportData) return showAdminToast("Ch\u01b0a t\u1ea3i \u0111\u01b0\u1ee3c d\u1eef li\u1ec7u b\u00e1o c\u00e1o.");
   const rows = [
     ["Th\u00e1ng", "\u0110\u01a1n h\u00e0ng", "Doanh thu (\u0111\u01a1n ho\u00e0n t\u1ea5t)"],
@@ -796,11 +883,7 @@ document.querySelector(".export-report-button").addEventListener("click", () => 
   showAdminToast("\u0110\u00e3 t\u1ea3i b\u00e1o c\u00e1o 12 th\u00e1ng t\u1eeb d\u1eef li\u1ec7u \u0111\u01a1n h\u00e0ng.");
 });
 
-document.querySelector(".export-orders-button").addEventListener("click", () => {
-  const protectSpreadsheetCell = (value) => {
-    const text = String(value ?? "");
-    return /^[\s\uFEFF]*[=+\-@]/.test(text) ? `'${text}` : text;
-  };
+document.querySelector(".export-orders-button")?.addEventListener("click", () => {
   const rows = [
     ["Mã đơn hàng", "Khách hàng", "Ngày đặt", "Sản phẩm", "Tổng tiền COD", "Trạng thái"],
     ...orderRows
@@ -818,10 +901,49 @@ document.querySelector(".export-orders-button").addEventListener("click", () => 
   showAdminToast("Đã tải báo cáo đơn hàng dạng CSV.");
 });
 
-document.querySelector(".profile-button").addEventListener("click", () => {
+document.querySelector(".report-export-button")?.addEventListener("click", () => {
+  const isReportPage = adminPage === "reports";
+  const rows = isReportPage
+    ? [
+      ["Chỉ số", "Giá trị"],
+      ...[...document.querySelectorAll(".stat-card")].map((card) => [
+        card.querySelector(".stat-label").textContent.trim(),
+        card.querySelector(".stat-value").textContent.trim()
+      ])
+    ]
+    : [
+      ["Mã đơn hàng", "Khách hàng", "Ngày đặt", "Sản phẩm", "Tổng tiền COD", "Trạng thái"],
+      ...orderRows
+        .filter((row) => !row.hidden)
+        .map((row) => [...row.cells].slice(0, 6).map((cell) =>
+          protectSpreadsheetCell(cell.innerText.replace(/\s+/g, " ").trim())))
+    ];
+  const csv = `\uFEFF${rows.map((row) => row.map((value) => `"${value.replace(/"/g, '""')}"`).join(",")).join("\r\n")}`;
+  const file = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(file);
+  link.download = isReportPage ? "authentic-shoes-bao-cao.csv" : "authentic-shoes-don-hang.csv";
+  link.click();
+  window.setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  showAdminToast(isReportPage ? "Đã tải báo cáo cửa hàng dạng CSV." : "Đã tải báo cáo đơn hàng dạng CSV.");
+});
+
+if (adminPage === "reports") document.querySelector(".date-button")?.addEventListener("click", () => {
+  showAdminToast("Dữ liệu đang hiển thị cho ngày 01 Tháng 11, 2026.");
+});
+
+document.querySelector(".notification-button")?.addEventListener("click", () => {
+  showAdminToast("Bạn có 3 thông báo mới từ cửa hàng.");
+});
+
+document.querySelector(".profile-button")?.addEventListener("click", () => {
   window.location.href = "/account";
 });
 
-document.querySelector(".sidebar-account").addEventListener("click", () => {
+document.querySelector(".sidebar-account")?.addEventListener("click", () => {
   window.location.href = "/account";
+});
+
+document.querySelector(".more-button")?.addEventListener("click", () => {
+  showAdminToast("Danh sách đang được sắp xếp theo sản phẩm bán chạy.");
 });

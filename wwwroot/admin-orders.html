@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f6f7fb">
+  <meta name="description" content="Quản lý đơn hàng Authentic Shoes.">
+  <title>Đơn hàng | Authentic Shoes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/admin.css?v=multi-color-size-editor">
+  <script src="/admin.js?v=variant-stock-total" defer></script>
+</head>
+<body data-admin-page="orders">
+  <div class="admin-layout">
+    <aside class="sidebar" id="admin-sidebar">
+      <a class="admin-brand" href="/admin" aria-label="Authentic Shoes Admin">
+        <span class="admin-brand-mark"><i></i><i></i></span>
+        <span><strong>AUTHENTIC</strong><small>SHOES · ADMIN</small></span>
+      </a>
+      <div class="sidebar-label">MENU CHÍNH</div>
+      <nav class="sidebar-nav" aria-label="Menu quản trị">
+        <a class="sidebar-link" href="/admin"><span class="sidebar-icon">▦</span><span>Tổng quan</span></a>
+        <a class="sidebar-link is-active" href="/admin/orders"><span class="sidebar-icon">▣</span><span>Đơn hàng</span><span class="nav-count">0</span></a>
+        <a class="sidebar-link" href="/admin/products"><span class="sidebar-icon">◈</span><span>Sản phẩm</span></a>
+        <a class="sidebar-link" href="/admin/categories"><span class="sidebar-icon">▤</span><span>Danh mục</span></a>
+        <a class="sidebar-link" href="/admin/reports"><span class="sidebar-icon">▤</span><span>Báo cáo</span></a>
+      </nav>
+      <div class="sidebar-help">
+        <span class="help-icon">✦</span>
+        <strong>Cần hỗ trợ?</strong>
+        <p>Đội ngũ của chúng tôi luôn sẵn sàng giúp bạn.</p>
+        <a href="mailto:service@authenticshoes.com">Liên hệ hỗ trợ <span>→</span></a>
+      </div>
+      <button class="sidebar-account" type="button" aria-label="Tài khoản quản trị">
+        <span class="avatar avatar-admin">AS</span>
+        <span class="account-copy"><strong>Authentic Admin</strong><small>Quản trị viên</small></span>
+        <span class="account-more">···</span>
+      </button>
+    </aside>
+
+    <div class="admin-main">
+      <header class="topbar">
+        <button class="sidebar-toggle" type="button" aria-label="Mở menu" aria-expanded="false" aria-controls="admin-sidebar"><span></span><span></span><span></span></button>
+        <div class="breadcrumb"><span>Trang quản trị</span><span>/</span><strong>Đơn hàng</strong></div>
+        <div class="topbar-actions">
+          <label class="top-search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg>
+            <input id="order-search" type="search" placeholder="Tìm đơn hàng..." aria-label="Tìm đơn hàng">
+            <kbd>⌘ K</kbd>
+          </label>
+          <button class="top-icon notification-button" type="button" aria-label="Thông báo"><span>♧</span><i></i></button>
+          <span class="topbar-divider"></span>
+          <button class="profile-button" type="button"><span class="avatar avatar-profile">AS</span><span><strong>Xin chào, Admin</strong><small>Quản trị viên</small></span><span class="profile-caret">⌄</span></button>
+        </div>
+      </header>
+
+      <main class="dashboard-content">
+        <section class="page-heading">
+          <div>
+            <p class="page-eyebrow">QUẢN LÝ BÁN HÀNG</p>
+            <h1>Đơn hàng</h1>
+            <p class="page-subtitle">Cập nhật trạng thái đơn hàng COD và theo dõi giao hàng.</p>
+          </div>
+          <div class="heading-actions">
+            <button class="export-button report-export-button" type="button"><span>↥</span> Xuất báo cáo</button>
+          </div>
+        </section>
+
+        <section class="panel orders-panel" id="orders">
+          <div class="panel-heading orders-heading">
+            <div><h2>Tất cả đơn hàng</h2><p>Đơn đặt tại cửa hàng · COD · Hủy đơn sẽ hoàn kho</p></div>
+          </div>
+          <div class="orders-table-wrap">
+            <table class="orders-table">
+              <thead><tr><th>MÃ ĐƠN HÀNG</th><th>KHÁCH HÀNG</th><th>NGÀY ĐẶT</th><th>SẢN PHẨM</th><th>TỔNG TIỀN (COD)</th><th>TRẠNG THÁI</th></tr></thead>
+              <tbody class="orders-table-body"></tbody>
+            </table>
+            <p class="empty-orders" hidden>Không tìm thấy đơn hàng phù hợp.</p>
+          </div>
+          <div class="table-footer">
+            <span class="order-count">Đang tải đơn hàng...</span>
+            <nav class="pagination orders-pagination" aria-label="Phân trang đơn hàng"></nav>
+          </div>
+        </section>
+
+        <footer class="dashboard-footer"><span>© 2026 Authentic Shoes Admin</span><span>Được thiết kế với <b>♥</b> dành cho cửa hàng của bạn</span></footer>
+      </main>
+    </div>
+  </div>
+  <div class="admin-toast" role="status" aria-live="polite"></div>
+</body>
+</html>

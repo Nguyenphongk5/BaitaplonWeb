@@ -351,9 +351,9 @@ public static class ProductEndpoints
             var topProducts = await database.StoreOrderItems
                 .AsNoTracking()
                 .Where(item => item.Order != null && item.Order.Status == OrderStatuses.Completed)
-                .GroupBy(item => item.ProductId)
+                .GroupBy(item => new { item.ProductId, item.ProductName })
                 .Select(group => new DashboardProductResponse(
-                    group.Max(item => item.ProductName),
+                    group.Key.ProductName,
                     group.Sum(item => item.Quantity)))
                 .OrderByDescending(item => item.Quantity)
                 .Take(5)
