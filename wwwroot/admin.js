@@ -217,10 +217,6 @@ async function loadOrders(page = 1) {
 }
 
 async function loadDashboard() {
-  const dashboard = await requestProductApi("/api/admin/dashboard");
-  document.querySelector('[data-stat="orders"]').textContent = new Intl.NumberFormat("vi-VN").format(dashboard.ordersThisMonth);
-  document.querySelector('[data-stat="customers"]').textContent = new Intl.NumberFormat("vi-VN").format(dashboard.customersThisMonth);
-
   const now = new Date();
   document.querySelector(".dashboard-date").textContent = new Intl.DateTimeFormat("vi-VN", {
     weekday: "long", day: "2-digit", month: "long", year: "numeric"
@@ -228,6 +224,10 @@ async function loadDashboard() {
   document.querySelector(".dashboard-month").textContent = new Intl.DateTimeFormat("vi-VN", {
     month: "long", year: "numeric"
   }).format(now);
+
+  const dashboard = await requestProductApi("/api/admin/dashboard");
+  document.querySelector('[data-stat="orders"]').textContent = new Intl.NumberFormat("vi-VN").format(dashboard.ordersThisMonth);
+  document.querySelector('[data-stat="customers"]').textContent = new Intl.NumberFormat("vi-VN").format(dashboard.customersThisMonth);
 }
 
 ordersTableBody?.addEventListener("change", async (event) => {
@@ -622,10 +622,50 @@ async function initializeAdminPage() {
     return;
   }
   if (adminPage === "overview") {
-    await loadProducts();
-    await loadOrders();
-    await loadReports();
-    await loadDashboard();
+    const sections = [
+      { name: "products", label: "sản phẩm", load: loadProducts },
+      { name: "orders", label: "đơn hàng", load: loadOrders },
+      { name: "reports", label: "báo cáo", load: loadReports }
+    ];
+    const results = await Promise.allSettled(sections.map((section) => section.load()));
+    const failedSections = [];
+
+    function showSectionError(name, label, reason) {
+      const error = reason instanceof Error ? reason : new Error(String(reason));
+      console.error(`Could not load overview ${name}.`, error);
+      failedSections.push(label);
+
+      if (name === "orders") {
+        document.querySelector(".order-count").textContent = `Không thể tải đơn hàng: ${error.message}`;
+      } else if (name === "reports") {
+        document.querySelectorAll(".stat-revenue, .stat-active-products, .stat-average-order, .summary-revenue, .summary-orders")
+          .forEach((element) => { element.textContent = "Không tải được"; });
+        document.querySelector(".top-products-list").textContent = `Không thể tải báo cáo: ${error.message}`;
+        document.querySelector(".chart-columns").replaceChildren();
+        document.querySelector(".chart-x-labels").replaceChildren();
+        document.querySelector(".chart-y-labels").textContent = "Không tải được";
+      } else if (name === "dashboard") {
+        document.querySelectorAll('[data-stat="orders"], [data-stat="customers"]')
+          .forEach((element) => { element.textContent = "Không tải được"; });
+      }
+    }
+
+    results.forEach((result, index) => {
+      if (result.status === "rejected") {
+        const { name, label } = sections[index];
+        showSectionError(name, label, result.reason);
+      }
+    });
+
+    try {
+      await loadDashboard();
+    } catch (error) {
+      showSectionError("dashboard", "chỉ số tổng quan", error);
+    }
+
+    if (failedSections.length > 0) {
+      showAdminToast(`Không tải được ${failedSections.join(", ")}. Vui lòng kiểm tra kết nối rồi tải lại.`);
+    }
   }
   if (adminPage === "products" || adminPage === "categories") {
     await loadProducts();
