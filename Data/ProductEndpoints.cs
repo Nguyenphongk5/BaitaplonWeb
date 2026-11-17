@@ -9,8 +9,6 @@ namespace BaitaplonWeb.Data;
 
 public static class ProductEndpoints
 {
-    private const long MaxProductImageBytes = 5 * 1024 * 1024;
-
     private static readonly HashSet<string> Categories = new(StringComparer.Ordinal)
     {
         "tennis",
@@ -335,75 +333,6 @@ public static class ProductEndpoints
             return Results.Ok(new { token = tokens.RequestToken });
         });
 
-        adminProducts.MapPost("/images", async (
-            HttpContext context,
-            IAntiforgery antiforgery,
-            IWebHostEnvironment environment,
-            CancellationToken cancellationToken) =>
-        {
-            if (!await HasValidAntiforgeryToken(context, antiforgery))
-            {
-                return Results.BadRequest(new { title = "Mã bảo mật không hợp lệ. Hãy tải lại trang và thử lại." });
-            }
-
-            if (!context.Request.HasFormContentType)
-            {
-                return Results.BadRequest(new { title = "Dữ liệu ảnh không hợp lệ." });
-            }
-
-            if (context.Request.ContentLength > MaxProductImageBytes + 64 * 1024)
-            {
-                return Results.Problem(
-                    title: "Ảnh vượt quá dung lượng cho phép (tối đa 5 MB).",
-                    statusCode: StatusCodes.Status413PayloadTooLarge);
-            }
-
-            var form = await context.Request.ReadFormAsync(cancellationToken);
-            if (form.Files.Count != 1 || form.Files[0].Name != "image")
-            {
-                return Results.BadRequest(new { title = "Vui lòng chọn một ảnh sản phẩm." });
-            }
-
-            var file = form.Files[0];
-            if (file.Length is <= 0 or > MaxProductImageBytes)
-            {
-                return Results.BadRequest(new { title = "Ảnh phải có dung lượng tối đa 5 MB." });
-            }
-
-            var header = new byte[12];
-            var headerLength = 0;
-            await using (var imageStream = file.OpenReadStream())
-            {
-                while (headerLength < header.Length)
-                {
-                    var bytesRead = await imageStream.ReadAsync(header.AsMemory(headerLength), cancellationToken);
-                    if (bytesRead == 0)
-                    {
-                        break;
-                    }
-
-                    headerLength += bytesRead;
-                }
-            }
-
-            var extension = GetImageExtension(header.AsSpan(0, headerLength));
-            if (extension is null)
-            {
-                return Results.BadRequest(new { title = "Chỉ hỗ trợ ảnh JPG, PNG hoặc WEBP hợp lệ." });
-            }
-
-            var uploadDirectory = Path.Combine(environment.WebRootPath, "uploads", "products");
-            Directory.CreateDirectory(uploadDirectory);
-            var fileName = $"{Guid.NewGuid():N}{extension}";
-            var filePath = Path.Combine(uploadDirectory, fileName);
-            await using (var destination = new FileStream(filePath, FileMode.CreateNew, FileAccess.Write, FileShare.None))
-            {
-                await file.CopyToAsync(destination, cancellationToken);
-            }
-
-            return Results.Ok(new { imageUrl = $"/uploads/products/{fileName}" });
-        });
-
         adminProducts.MapPost("/", async (
             ProductRequest request,
             HttpContext context,
@@ -708,7 +637,7 @@ public static class ProductEndpoints
 
         if (!IsValidImageUrl(request.ImageUrl))
         {
-            errors[nameof(request.ImageUrl)] = ["Ảnh phải được tải lên từ file hợp lệ, nằm trong /img/ hoặc /assets/, hoặc dùng URL HTTPS."];
+            errors[nameof(request.ImageUrl)] = ["Ảnh phải là đường dẫn /img/ hoặc /assets/ trong website, hoặc URL HTTPS."];
         }
 
         if (request.Variants is null || request.Variants.Count > 100)
@@ -761,8 +690,7 @@ public static class ProductEndpoints
     {
         var value = imageUrl.Trim();
         if (value.StartsWith("/img/", StringComparison.Ordinal)
-            || value.StartsWith("/assets/", StringComparison.Ordinal)
-            || value.StartsWith("/uploads/products/", StringComparison.Ordinal))
+            || value.StartsWith("/assets/", StringComparison.Ordinal))
         {
             return !value.Contains("..", StringComparison.Ordinal)
                 && !value.Contains('\\')
@@ -771,45 +699,6 @@ public static class ProductEndpoints
 
         return Uri.TryCreate(value, UriKind.Absolute, out var uri)
             && uri.Scheme == Uri.UriSchemeHttps;
-    }
-
-    private static string? GetImageExtension(ReadOnlySpan<byte> header)
-    {
-        if (header.Length >= 3
-            && header[0] == 0xFF
-            && header[1] == 0xD8
-            && header[2] == 0xFF)
-        {
-            return ".jpg";
-        }
-
-        if (header.Length >= 8
-            && header[0] == 0x89
-            && header[1] == 0x50
-            && header[2] == 0x4E
-            && header[3] == 0x47
-            && header[4] == 0x0D
-            && header[5] == 0x0A
-            && header[6] == 0x1A
-            && header[7] == 0x0A)
-        {
-            return ".png";
-        }
-
-        if (header.Length >= 12
-            && header[0] == (byte)'R'
-            && header[1] == (byte)'I'
-            && header[2] == (byte)'F'
-            && header[3] == (byte)'F'
-            && header[8] == (byte)'W'
-            && header[9] == (byte)'E'
-            && header[10] == (byte)'B'
-            && header[11] == (byte)'P')
-        {
-            return ".webp";
-        }
-
-        return null;
     }
 
     private static string? CleanBadge(string? badge)
@@ -916,7 +805,7 @@ public static class ProductEndpoints
         [Range(1, 1_000_000_000, ErrorMessage = "Giá phải lớn hơn 0 và không vượt quá 1 tỷ đồng.")]
         public long Price { get; set; }
 
-        [Required(ErrorMessage = "Vui lòng chọn ảnh sản phẩm.")]
+        [Required(ErrorMessage = "Vui lòng nhập đường dẫn ảnh.")]
         [StringLength(500, ErrorMessage = "Đường dẫn ảnh không được quá 500 ký tự.")]
         public string ImageUrl { get; set; } = string.Empty;
 
