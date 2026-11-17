@@ -231,7 +231,7 @@ namespace BaitaplonWeb.Data.Migrations
 
                     b.Property<string>("District")
                         .HasMaxLength(120)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(120)");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
@@ -240,7 +240,7 @@ namespace BaitaplonWeb.Data.Migrations
 
                     b.Property<string>("ProvinceOrCity")
                         .HasMaxLength(120)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(120)");
 
                     b.Property<string>("ShippingAddress")
                         .IsRequired()
@@ -254,7 +254,7 @@ namespace BaitaplonWeb.Data.Migrations
 
                     b.Property<string>("StreetAddress")
                         .HasMaxLength(250)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<long>("TotalAmount")
                         .HasColumnType("bigint");
@@ -264,7 +264,7 @@ namespace BaitaplonWeb.Data.Migrations
 
                     b.Property<string>("WardOrCommune")
                         .HasMaxLength(120)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(120)");
 
                     b.HasKey("Id");
 
