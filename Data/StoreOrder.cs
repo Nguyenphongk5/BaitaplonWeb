@@ -13,6 +13,7 @@ public sealed class StoreOrder
     public string? StreetAddress { get; set; }
     public long TotalAmount { get; set; }
     public string Status { get; set; } = OrderStatuses.Pending;
+    public DateTime? CancellationRequestedAtUtc { get; set; }
     public DateTime CreatedAtUtc { get; set; }
     public List<StoreOrderItem> Items { get; set; } = [];
 }

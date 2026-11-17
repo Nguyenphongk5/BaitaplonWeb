@@ -58,6 +58,25 @@ function renderOrders(orders) {
     total.textContent = `Tổng cộng: ${new Intl.NumberFormat("vi-VN").format(order.totalAmount)} ₫`;
     footer.append(status, total);
     card.append(header, items, footer);
+
+    const canRequestCancellation = ["Pending", "Confirmed"].includes(order.status);
+    if (order.cancellationRequestedAtUtc) {
+      const requestState = document.createElement("p");
+      requestState.className = "account-order-cancellation-note";
+      requestState.textContent = "Đã gửi yêu cầu hủy, đang chờ quản trị viên xử lý.";
+      card.append(requestState);
+    } else if (canRequestCancellation) {
+      const actions = document.createElement("div");
+      actions.className = "account-order-actions";
+      const cancelButton = document.createElement("button");
+      cancelButton.type = "button";
+      cancelButton.className = "account-order-cancel-button";
+      cancelButton.dataset.orderId = String(order.id);
+      cancelButton.textContent = "Yêu cầu hủy đơn";
+      actions.append(cancelButton);
+      card.append(actions);
+    }
+
     return card;
   });
   orderList.replaceChildren(...cards);
@@ -76,6 +95,35 @@ async function loadOrders() {
 loadOrders().catch((error) => {
   console.error("Could not load customer order history.", error);
   ordersMessage.textContent = error.message;
+});
+
+orderList.addEventListener("click", async (event) => {
+  const button = event.target.closest(".account-order-cancel-button");
+  if (!button) return;
+  if (!window.confirm("Gửi yêu cầu hủy đơn? Đơn chỉ được hủy khi quản trị viên duyệt.")) return;
+
+  button.disabled = true;
+  try {
+    const tokenResponse = await fetch("/api/orders/antiforgery");
+    if (!tokenResponse.ok) throw new Error("Không thể xác thực yêu cầu. Hãy tải lại trang và thử lại.");
+    const { token } = await tokenResponse.json();
+    const response = await fetch(`/api/account/orders/${button.dataset.orderId}/cancellation-request`, {
+      method: "POST",
+      headers: { RequestVerificationToken: token }
+    });
+    const result = await response.json().catch(() => null);
+    if (!response.ok) {
+      throw new Error(result?.message ?? "Không thể gửi yêu cầu hủy đơn. Hãy thử lại.");
+    }
+
+    await loadOrders();
+    ordersMessage.textContent = "Đã gửi yêu cầu hủy. Bạn sẽ thấy trạng thái được cập nhật khi quản trị viên xử lý.";
+  } catch (error) {
+    console.error("Could not request order cancellation.", error);
+    ordersMessage.textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
 });
 
 const orderEvents = new EventSource("/api/account/orders/stream");

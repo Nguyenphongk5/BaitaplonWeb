@@ -43,10 +43,54 @@ public static class ProductEndpoints
                     order.TotalAmount,
                     order.Status,
                     order.CreatedAtUtc,
+                    order.CancellationRequestedAtUtc,
                     order.Items.Select(item => new OrderItemResponse(item.ProductName, item.ProductImageUrl, item.Variant, item.Color, item.Quantity, item.UnitPrice)).ToList()))
                 .ToListAsync(cancellationToken);
 
             return Results.Ok(orders);
+        }).RequireAuthorization();
+
+        app.MapPost("/api/account/orders/{id:int}/cancellation-request", async (
+            int id,
+            ClaimsPrincipal user,
+            HttpContext context,
+            IAntiforgery antiforgery,
+            ApplicationDbContext database,
+            OrderStatusNotifier notifier,
+            CancellationToken cancellationToken) =>
+        {
+            if (!await HasValidAntiforgeryToken(context, antiforgery))
+            {
+                return Results.BadRequest(new { message = "Phiên yêu cầu hủy không hợp lệ. Hãy tải lại trang và thử lại." });
+            }
+
+            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Results.Unauthorized();
+            }
+
+            var order = await database.StoreOrders
+                .SingleOrDefaultAsync(item => item.Id == id && item.UserId == userId, cancellationToken);
+            if (order is null)
+            {
+                return Results.NotFound();
+            }
+
+            if (order.CancellationRequestedAtUtc is not null)
+            {
+                return Results.Conflict(new { message = "Yêu cầu hủy đơn này đã được gửi và đang chờ quản trị viên xử lý." });
+            }
+
+            if (order.Status is not (OrderStatuses.Pending or OrderStatuses.Confirmed))
+            {
+                return Results.Conflict(new { message = "Chỉ có thể yêu cầu hủy đơn chưa giao cho đơn vị vận chuyển." });
+            }
+
+            order.CancellationRequestedAtUtc = DateTime.UtcNow;
+            await database.SaveChangesAsync(cancellationToken);
+            notifier.Notify(new OrderStatusUpdate(userId, order.Id, order.Status, DateTime.UtcNow));
+            return Results.Ok(new { id = order.Id, order.CancellationRequestedAtUtc });
         }).RequireAuthorization();
 
         app.MapGet("/api/account/orders/stream", async (
@@ -670,6 +714,7 @@ public static class ProductEndpoints
                     order.TotalAmount,
                     order.Status,
                     order.CreatedAtUtc,
+                    order.CancellationRequestedAtUtc,
                     order.Items.Select(item => new OrderItemResponse(item.ProductName, item.ProductImageUrl, item.Variant, item.Color, item.Quantity, item.UnitPrice)).ToList()))
                 .ToListAsync(cancellationToken);
 
@@ -704,6 +749,13 @@ public static class ProductEndpoints
                 return Results.NotFound();
             }
 
+            if (order.CancellationRequestedAtUtc is not null
+                && request.Status != order.Status
+                && request.Status != OrderStatuses.Cancelled)
+            {
+                return Results.Conflict(new { message = "Đơn đang có yêu cầu hủy từ khách hàng. Hãy duyệt hoặc từ chối yêu cầu trước." });
+            }
+
             if (order.Status == OrderStatuses.Cancelled && request.Status != OrderStatuses.Cancelled)
             {
                 return Results.Conflict(new { message = "Đơn đã hủy không thể mở lại." });
@@ -721,41 +773,18 @@ public static class ProductEndpoints
                     return Results.Conflict(new { message = "Không thể hủy đơn đã giao cho đơn vị vận chuyển." });
                 }
 
-                foreach (var item in order.Items)
+                if (!await RestockOrderItemsAsync(database, order, cancellationToken))
                 {
-                    if (item.Color is not null && item.Variant is not null)
-                    {
-                        var updatedRows = await database.ProductVariants
-                            .Where(variant => variant.ProductId == item.ProductId
-                                && variant.Color == item.Color
-                                && variant.Size == item.Variant)
-                            .ExecuteUpdateAsync(setters => setters
-                                .SetProperty(variant => variant.StockQuantity, variant => variant.StockQuantity + item.Quantity), cancellationToken);
-
-                        if (updatedRows == 0)
-                        {
-                            await transaction.RollbackAsync(cancellationToken);
-                            return Results.Conflict(new { message = "Không tìm thấy phân loại sản phẩm để hoàn kho. Đơn hàng chưa được hủy." });
-                        }
-
-                        continue;
-                    }
-
-                    await database.Products
-                        .Where(product => product.Id == item.ProductId)
-                        .ExecuteUpdateAsync(setters => setters
-                            .SetProperty(product => product.StockQuantity, product => product.StockQuantity + item.Quantity), cancellationToken);
+                    await transaction.RollbackAsync(cancellationToken);
+                    return Results.Conflict(new { message = "Không tìm thấy phân loại sản phẩm để hoàn kho. Đơn hàng chưa được hủy." });
                 }
-
-                await SyncProductStockFromVariantsAsync(
-                    database,
-                    order.Items
-                        .Where(item => item.Color is not null && item.Variant is not null)
-                        .Select(item => item.ProductId),
-                    cancellationToken);
             }
 
             order.Status = request.Status;
+            if (request.Status == OrderStatuses.Cancelled)
+            {
+                order.CancellationRequestedAtUtc = null;
+            }
             await database.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
             if (order.UserId is not null)
@@ -763,6 +792,73 @@ public static class ProductEndpoints
                 notifier.Notify(new OrderStatusUpdate(order.UserId, order.Id, order.Status, DateTime.UtcNow));
             }
             return Results.Ok(new { id = order.Id, order.Status });
+        });
+
+        adminOrders.MapPut("/{id:int}/cancellation-request", async (
+            int id,
+            ResolveCancellationRequest request,
+            HttpContext context,
+            IAntiforgery antiforgery,
+            ApplicationDbContext database,
+            OrderStatusNotifier notifier,
+            CancellationToken cancellationToken) =>
+        {
+            if (!await HasValidAntiforgeryToken(context, antiforgery))
+            {
+                return Results.BadRequest(new { message = "Mã bảo mật không hợp lệ. Hãy tải lại trang và thử lại." });
+            }
+
+            await using var transaction = await database.Database.BeginTransactionAsync(cancellationToken);
+            var order = await database.StoreOrders
+                .Include(item => item.Items)
+                .SingleOrDefaultAsync(item => item.Id == id, cancellationToken);
+            if (order is null)
+            {
+                return Results.NotFound();
+            }
+
+            if (order.CancellationRequestedAtUtc is null)
+            {
+                return Results.Conflict(new { message = "Đơn hàng không có yêu cầu hủy đang chờ xử lý." });
+            }
+
+            if (request.Approve)
+            {
+                if (order.Status is not (OrderStatuses.Pending or OrderStatuses.Confirmed))
+                {
+                    return Results.Conflict(new { message = "Đơn không còn đủ điều kiện để hủy." });
+                }
+            }
+
+            var claimedRequest = await database.StoreOrders
+                .Where(item => item.Id == id && item.CancellationRequestedAtUtc != null)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(item => item.CancellationRequestedAtUtc, (DateTime?)null), cancellationToken);
+            if (claimedRequest == 0)
+            {
+                return Results.Conflict(new { message = "Yêu cầu hủy đã được xử lý ở nơi khác. Hãy tải lại danh sách đơn hàng." });
+            }
+
+            order.CancellationRequestedAtUtc = null;
+            if (request.Approve)
+            {
+                if (!await RestockOrderItemsAsync(database, order, cancellationToken))
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    return Results.Conflict(new { message = "Không tìm thấy phân loại sản phẩm để hoàn kho. Đơn hàng chưa được hủy." });
+                }
+
+                order.Status = OrderStatuses.Cancelled;
+            }
+
+            await database.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+            if (order.UserId is not null)
+            {
+                notifier.Notify(new OrderStatusUpdate(order.UserId, order.Id, order.Status, DateTime.UtcNow));
+            }
+
+            return Results.Ok(new { id = order.Id, order.Status, request.Approve });
         });
     }
 
@@ -975,6 +1071,42 @@ public static class ProductEndpoints
         }
     }
 
+    private static async Task<bool> RestockOrderItemsAsync(
+        ApplicationDbContext database,
+        StoreOrder order,
+        CancellationToken cancellationToken)
+    {
+        var variantProductIds = new HashSet<int>();
+        foreach (var item in order.Items)
+        {
+            if (item.Color is not null && item.Variant is not null)
+            {
+                var updatedRows = await database.ProductVariants
+                    .Where(variant => variant.ProductId == item.ProductId
+                        && variant.Color == item.Color
+                        && variant.Size == item.Variant)
+                    .ExecuteUpdateAsync(setters => setters
+                        .SetProperty(variant => variant.StockQuantity, variant => variant.StockQuantity + item.Quantity), cancellationToken);
+
+                if (updatedRows == 0)
+                {
+                    return false;
+                }
+
+                variantProductIds.Add(item.ProductId);
+                continue;
+            }
+
+            await database.Products
+                .Where(product => product.Id == item.ProductId)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(product => product.StockQuantity, product => product.StockQuantity + item.Quantity), cancellationToken);
+        }
+
+        await SyncProductStockFromVariantsAsync(database, variantProductIds, cancellationToken);
+        return true;
+    }
+
     private static ProductVariant ToVariant(ProductVariantRequest variant) => new()
     {
         Color = variant.Color.Trim(),
@@ -1117,6 +1249,11 @@ public static class ProductEndpoints
         public string Status { get; set; } = string.Empty;
     }
 
+    public sealed class ResolveCancellationRequest
+    {
+        public bool Approve { get; set; }
+    }
+
     private sealed record ProductResponse(
         int Id,
         string Name,
@@ -1142,6 +1279,7 @@ public static class ProductEndpoints
         long TotalAmount,
         string Status,
         DateTime CreatedAtUtc,
+        DateTime? CancellationRequestedAtUtc,
         List<OrderItemResponse> Items);
 
     private sealed record CustomerOrderResponse(
@@ -1149,6 +1287,7 @@ public static class ProductEndpoints
         long TotalAmount,
         string Status,
         DateTime CreatedAtUtc,
+        DateTime? CancellationRequestedAtUtc,
         List<OrderItemResponse> Items);
 
     private sealed record DashboardResponse(

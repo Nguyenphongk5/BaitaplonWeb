@@ -134,7 +134,23 @@ function renderOrders() {
       statusSelect.append(option);
     });
     statusSelect.value = order.status;
+    statusSelect.disabled = Boolean(order.cancellationRequestedAtUtc);
     statusCell.append(statusSelect);
+    if (order.cancellationRequestedAtUtc) {
+      const requestNotice = document.createElement("span");
+      requestNotice.className = "order-cancellation-notice";
+      requestNotice.textContent = "Khách yêu cầu hủy";
+      const requestActions = document.createElement("div");
+      requestActions.className = "order-cancellation-actions";
+      for (const [action, label] of [["approve", "Duyệt hủy"], ["reject", "Từ chối"]]) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.dataset.cancellationAction = action;
+        button.textContent = label;
+        requestActions.append(button);
+      }
+      statusCell.append(requestNotice, requestActions);
+    }
     row.append(orderId, customerCell, dateCell, itemsCell, total, statusCell);
     return row;
   });
@@ -261,6 +277,34 @@ ordersTableBody?.addEventListener("change", async (event) => {
     showAdminToast(error.message);
   } finally {
     select.disabled = false;
+  }
+});
+
+ordersTableBody?.addEventListener("click", async (event) => {
+  const button = event.target.closest("button[data-cancellation-action]");
+  if (!button) return;
+  const row = button.closest("tr");
+  const orderId = Number(row.dataset.orderId);
+  const approve = button.dataset.cancellationAction === "approve";
+  button.disabled = true;
+
+  try {
+    const token = await getAntiforgeryToken();
+    await requestProductApi(`/api/admin/orders/${orderId}/cancellation-request`, {
+      method: "PUT",
+      headers: { RequestVerificationToken: token },
+      body: JSON.stringify({ approve })
+    });
+    await loadOrders(orderPageInfo.page);
+    if (approve) await loadProducts();
+    showAdminToast(approve
+      ? "Đã duyệt hủy đơn và hoàn lại tồn kho."
+      : "Đã từ chối yêu cầu hủy đơn.");
+  } catch (error) {
+    console.error("Could not resolve order cancellation request.", error);
+    showAdminToast(error.message);
+  } finally {
+    button.disabled = false;
   }
 });
 
@@ -677,6 +721,16 @@ initializeAdminPage().catch((error) => {
   console.error("Could not initialize admin page.", error);
   showAdminToast(error.message);
 });
+
+if (adminPage === "overview" || adminPage === "orders") {
+  window.setInterval(() => {
+    if (document.visibilityState === "visible") {
+      loadOrders(orderPageInfo.page).catch((error) => {
+        console.error("Could not refresh admin orders.", error);
+      });
+    }
+  }, 30000);
+}
 
 document.querySelector(".add-product-button")?.addEventListener("click", () => openProductDialog());
 document.querySelector(".close-product-dialog")?.addEventListener("click", () => productDialog.close());

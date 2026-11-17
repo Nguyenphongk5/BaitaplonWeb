@@ -255,6 +255,11 @@ button { cursor: pointer; }
 .order-status-select.status-shipping { color: #4e77d2; background: #edf3ff; }
 .order-status-select.status-completed { color: #30946c; background: #eaf8f1; }
 .order-status-select.status-cancelled { color: #d45e6b; background: #fff0f1; }
+.order-cancellation-notice { display: block; margin-top: 6px; color: #a26d18; font-size: 8px; font-weight: 800; }
+.order-cancellation-actions { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
+.order-cancellation-actions button { padding: 5px 7px; border: 1px solid #e8eaf0; border-radius: 6px; color: #6558ee; background: #fff; font-size: 8px; font-weight: 700; }
+.order-cancellation-actions button:first-child { border-color: #f0ccd0; color: #bd4d59; background: #fff5f6; }
+.order-cancellation-actions button:disabled { opacity: .6; cursor: wait; }
 .admin-product-dialog { width: min(680px, calc(100vw - 28px)); max-height: min(90vh, 760px); padding: 0; overflow: auto; border: 1px solid #edf0f5; border-radius: 15px; color: var(--admin-ink); background: #fff; box-shadow: 0 24px 80px #11152d35; }
 .admin-product-dialog::backdrop { background: #17192c80; backdrop-filter: blur(3px); }
 .admin-product-form { display: grid; gap: 14px; padding: 24px; }
