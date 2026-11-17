@@ -483,11 +483,19 @@ function renderProductRows() {
 }
 
 async function loadProducts() {
-  products = await requestProductApi("/api/admin/products");
-  if (adminPage === "categories") {
-    renderCategoryCards();
-  } else {
-    renderProductRows();
+  try {
+    products = await requestProductApi("/api/admin/products");
+    if (adminPage === "categories") {
+      renderCategoryCards();
+    } else {
+      renderProductRows();
+    }
+  } catch (error) {
+    const message = `Không thể tải sản phẩm: ${error.message}`;
+    if (productCount) productCount.textContent = message;
+    const categoryCards = document.querySelector(".category-cards");
+    if (categoryCards) categoryCards.textContent = message;
+    throw error;
   }
 }
 
