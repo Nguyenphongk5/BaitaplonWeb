@@ -281,7 +281,17 @@ public static class ProductEndpoints
                     : null,
                 CustomerName = request.CustomerName.Trim(),
                 PhoneNumber = request.PhoneNumber.Trim(),
-                ShippingAddress = request.ShippingAddress.Trim(),
+                ProvinceOrCity = request.ProvinceOrCity.Trim(),
+                District = string.IsNullOrWhiteSpace(request.District) ? null : request.District.Trim(),
+                WardOrCommune = request.WardOrCommune.Trim(),
+                StreetAddress = request.StreetAddress.Trim(),
+                ShippingAddress = string.Join(", ", new[]
+                {
+                    request.StreetAddress.Trim(),
+                    request.WardOrCommune.Trim(),
+                    request.District?.Trim(),
+                    request.ProvinceOrCity.Trim()
+                }.Where(part => !string.IsNullOrWhiteSpace(part))),
                 CreatedAtUtc = DateTime.UtcNow,
                 Status = OrderStatuses.Pending,
                 Items = request.Items.Select(item =>
@@ -556,9 +566,36 @@ public static class ProductEndpoints
             errors[nameof(request.PhoneNumber)] = ["Vui lòng nhập số điện thoại hợp lệ."];
         }
 
-        if (string.IsNullOrWhiteSpace(request.ShippingAddress) || request.ShippingAddress.Trim().Length > 500)
+        if (string.IsNullOrWhiteSpace(request.ProvinceOrCity) || request.ProvinceOrCity.Trim().Length > 120)
         {
-            errors[nameof(request.ShippingAddress)] = ["Vui lòng nhập địa chỉ giao hàng (tối đa 500 ký tự)."];
+            errors[nameof(request.ProvinceOrCity)] = ["Vui lòng chọn tỉnh/thành phố."];
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.District) && request.District.Trim().Length > 120)
+        {
+            errors[nameof(request.District)] = ["Quận/huyện không được vượt quá 120 ký tự."];
+        }
+
+        if (string.IsNullOrWhiteSpace(request.WardOrCommune) || request.WardOrCommune.Trim().Length > 120)
+        {
+            errors[nameof(request.WardOrCommune)] = ["Vui lòng chọn phường/xã/đặc khu."];
+        }
+
+        if (string.IsNullOrWhiteSpace(request.StreetAddress) || request.StreetAddress.Trim().Length > 250)
+        {
+            errors[nameof(request.StreetAddress)] = ["Vui lòng nhập địa chỉ cụ thể (tối đa 250 ký tự)."];
+        }
+
+        var addressLength = string.Join(", ", new[]
+        {
+            request.StreetAddress?.Trim(),
+            request.WardOrCommune?.Trim(),
+            request.District?.Trim(),
+            request.ProvinceOrCity?.Trim()
+        }.Where(part => !string.IsNullOrWhiteSpace(part))).Length;
+        if (addressLength > 500)
+        {
+            errors[nameof(request.StreetAddress)] = ["Địa chỉ đầy đủ không được vượt quá 500 ký tự."];
         }
 
         if (request.Items is null
@@ -794,7 +831,10 @@ public static class ProductEndpoints
     {
         public string CustomerName { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
-        public string ShippingAddress { get; set; } = string.Empty;
+        public string ProvinceOrCity { get; set; } = string.Empty;
+        public string? District { get; set; }
+        public string WardOrCommune { get; set; } = string.Empty;
+        public string StreetAddress { get; set; } = string.Empty;
         public List<CheckoutItemRequest> Items { get; set; } = [];
     }
 

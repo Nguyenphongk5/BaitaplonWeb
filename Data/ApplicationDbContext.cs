@@ -51,6 +51,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(order => order.CustomerName).HasMaxLength(120).IsRequired();
             entity.Property(order => order.PhoneNumber).HasMaxLength(30).IsRequired();
             entity.Property(order => order.ShippingAddress).HasMaxLength(500).IsRequired();
+            entity.Property(order => order.ProvinceOrCity).HasMaxLength(120);
+            entity.Property(order => order.District).HasMaxLength(120);
+            entity.Property(order => order.WardOrCommune).HasMaxLength(120);
+            entity.Property(order => order.StreetAddress).HasMaxLength(250);
             entity.Property(order => order.Status).HasMaxLength(20).IsRequired();
             entity.HasIndex(order => order.CreatedAtUtc);
             entity.HasMany(order => order.Items)

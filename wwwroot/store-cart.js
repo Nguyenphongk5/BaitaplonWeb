@@ -8,6 +8,7 @@
   let itemList;
   let checkoutForm;
   let checkoutError;
+  let locations = [];
   let isAuthenticated = false;
   let ready;
   let toastTimeout;
@@ -226,7 +227,21 @@
       `/register?${new URLSearchParams({ ReturnUrl: returnUrl })}`;
   }
 
+  function populateAddressOptions() {
+    const provinceSelect = checkoutForm.elements.provinceOrCity;
+    const wardSelect = checkoutForm.elements.wardOrCommune;
+    const selectedProvince = locations.find((location) => location.name === provinceSelect.value);
+    const wards = selectedProvince?.wards ?? [];
+    wardSelect.replaceChildren(new Option("Chọn phường/xã/đặc khu", ""));
+    for (const ward of wards) {
+      wardSelect.add(new Option(ward.name, ward.name));
+    }
+    wardSelect.disabled = wards.length === 0;
+  }
+
   function wireEvents() {
+    checkoutForm.elements.provinceOrCity.addEventListener("change", populateAddressOptions);
+
     document.addEventListener("click", async (event) => {
       if (event.target.closest(".cart-button")) {
         event.preventDefault();
@@ -305,7 +320,10 @@
           body: JSON.stringify({
             customerName: formData.get("customerName"),
             phoneNumber: formData.get("phoneNumber"),
-            shippingAddress: formData.get("shippingAddress"),
+            provinceOrCity: formData.get("provinceOrCity"),
+            district: formData.get("district"),
+            wardOrCommune: formData.get("wardOrCommune"),
+            streetAddress: formData.get("streetAddress"),
             items: items.map((item) => ({
               productId: item.productId,
               quantity: item.quantity,
@@ -330,6 +348,7 @@
         saveItems();
         renderItems();
         checkoutForm.reset();
+        populateAddressOptions();
         dialog.close();
         showToast(`Đặt hàng thành công! Mã đơn #AS-${String(result.id).padStart(6, "0")}. Thanh toán khi nhận hàng.`);
         try {
@@ -351,16 +370,18 @@
 
   ready = (async () => {
     items = loadItems();
-    const [markupResponse, productResponse, accountResponse] = await Promise.all([
-      fetch("/cart-panel.html"),
+    const [markupResponse, productResponse, accountResponse, locationsResponse] = await Promise.all([
+      fetch("/cart-panel.html?v=structured-shipping-address"),
       fetch("/api/products"),
-      fetch("/auth/status")
+      fetch("/auth/status"),
+      fetch("/data/vietnam-addresses.json")
     ]);
-    if (!markupResponse.ok || !productResponse.ok || !accountResponse.ok) {
-      throw new Error("Không thể tải giỏ hàng hoặc danh sách sản phẩm.");
+    if (!markupResponse.ok || !productResponse.ok || !accountResponse.ok || !locationsResponse.ok) {
+      throw new Error("Không thể tải giỏ hàng, sản phẩm hoặc dữ liệu địa chỉ.");
     }
     document.querySelector("#cart-root").innerHTML = await markupResponse.text();
     const loadedProducts = await productResponse.json();
+    locations = await locationsResponse.json();
     isAuthenticated = (await accountResponse.json()).isAuthenticated;
     products = new Map(loadedProducts.map((product) => [product.id, product]));
     items = items.filter((item) => products.has(item.productId));
@@ -368,6 +389,11 @@
     itemList = document.querySelector(".cart-items");
     checkoutForm = document.querySelector(".checkout-form");
     checkoutError = document.querySelector(".checkout-error");
+    const provinceSelect = checkoutForm.elements.provinceOrCity;
+    for (const location of locations) {
+      provinceSelect.add(new Option(location.name, location.name));
+    }
+    populateAddressOptions();
     configureAuthenticationLinks();
     wireEvents();
     saveItems();

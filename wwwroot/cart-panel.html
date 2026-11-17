@@ -28,7 +28,14 @@
           <h3 class="checkout-customer-title">Thông tin nhận hàng</h3>
           <label>Họ và tên<input name="customerName" maxlength="120" autocomplete="name" required></label>
           <label>Số điện thoại<input name="phoneNumber" type="tel" maxlength="30" autocomplete="tel" required></label>
-          <label>Địa chỉ giao hàng<textarea name="shippingAddress" maxlength="500" autocomplete="street-address" rows="2" required></textarea></label>
+          <label>Tỉnh / Thành phố<select name="provinceOrCity" autocomplete="address-level1" required>
+            <option value="">Chọn tỉnh/thành phố</option>
+          </select></label>
+          <label>Quận / Huyện (nếu có)<input name="district" maxlength="120" autocomplete="address-level2"></label>
+          <label>Phường / Xã / Đặc khu<select name="wardOrCommune" autocomplete="address-level3" required disabled>
+            <option value="">Chọn phường/xã/đặc khu</option>
+          </select></label>
+          <label>Địa chỉ cụ thể<input name="streetAddress" maxlength="250" autocomplete="street-address" placeholder="Số nhà, tên đường..." required></label>
           <label class="checkout-terms">
             <input name="agreeTerms" type="checkbox" required>
             <span>Tôi đã đọc và đồng ý với <a href="/#terms">điều khoản sử dụng</a> và <a href="/#privacy">chính sách bảo vệ thông tin cá nhân</a>.</span>
