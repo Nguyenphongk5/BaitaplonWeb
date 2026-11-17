@@ -106,6 +106,7 @@ app.MapGet("/auth/status", (ClaimsPrincipal user) =>
 }).AllowAnonymous();
 
 app.MapProductEndpoints();
+app.MapArticleEndpoints();
 app.MapRazorPages();
 
 await InitializeIdentityAsync(app);

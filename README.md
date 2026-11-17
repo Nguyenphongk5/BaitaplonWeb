@@ -12,6 +12,31 @@ Trang chủ: `/`
 Đăng ký: `/register`  
 Đăng nhập: `/login`  
 Trang quản trị (chỉ role `Admin`): `/admin`
+Quản lý bài viết (trong trang quản trị): mục **Bài viết** tại `/admin#article-management`
+
+Danh sách bài viết công khai: `/articles.html`
+
+Chi tiết bài viết: `/article.html?slug=<slug>`
+
+## Quản lý bài viết
+
+Trong trang `/admin`, chọn **Bài viết** để tạo, sửa, xem trước hoặc xóa bài viết. Admin có thể tìm theo tiêu đề, lọc danh mục/trạng thái và chuyển trang. Slug để trống sẽ được tạo từ tiêu đề; slug phải duy nhất. Nội dung được hiển thị dưới dạng văn bản thuần để không thực thi HTML hoặc JavaScript. Ảnh đại diện dùng đường dẫn `/img/`, `/assets/` hoặc URL HTTPS; không có upload file.
+
+Bài viết mới mặc định là **Bản nháp**. Chỉ bài viết **Đã xuất bản** mới xuất hiện tại `/articles.html`, mục Tin tức trang chủ và route chi tiết công khai. API admin yêu cầu role `Admin` và antiforgery token; API đọc công khai không trả bài nháp.
+
+Migration `AddBlogArticles` chỉ tạo bảng `Articles`, các index và khóa ngoại tới `AspNetUsers`; migration không xóa dữ liệu hiện có. Ứng dụng tự áp dụng migration khi khởi động. Có thể áp dụng thủ công bằng EF CLI:
+
+```powershell
+dotnet tool install --global dotnet-ef --version 10.0.12
+dotnet ef database update
+```
+
+Kiểm tra build và các test hiện có:
+
+```powershell
+dotnet build
+dotnet test
+```
 
 Tài khoản tạo từ biểu mẫu đăng ký được gán role `User`. Ứng dụng dùng SQL Server và tự áp dụng migration khi khởi động. Mặc định, chuỗi kết nối dùng SQL Server LocalDB (`MSSQLLocalDB`) và tạo database `AuthenticShoes`. Nếu dùng SQL Server khác, ghi đè `ConnectionStrings__DefaultConnection` bằng chuỗi kết nối của server và database cần dùng trước khi chạy:
 

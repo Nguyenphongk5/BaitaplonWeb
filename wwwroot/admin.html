@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="admin.css?v=multi-color-size-editor">
+  <link rel="stylesheet" href="articles.css?v=blog-crud">
   <script src="admin.js?v=variant-stock-total" defer></script>
 </head>
 <body>
@@ -25,6 +26,7 @@
         <a class="sidebar-link" href="#orders"><span class="sidebar-icon">▣</span><span>Đơn hàng</span><span class="nav-count">0</span></a>
         <a class="sidebar-link" href="#product-management"><span class="sidebar-icon">◈</span><span>Sản phẩm</span></a>
         <a class="sidebar-link" href="#product-categories"><span class="sidebar-icon">▤</span><span>Danh mục</span></a>
+        <a class="sidebar-link" href="#article-management"><span class="sidebar-icon">▧</span><span>Bài viết</span></a>
         <a class="sidebar-link" href="#customers"><span class="sidebar-icon">♙</span><span>Khách hàng</span></a>
         <a class="sidebar-link" href="#analytics"><span class="sidebar-icon">▤</span><span>Báo cáo</span></a>
       </nav>
@@ -180,6 +182,26 @@
           <div class="table-footer"><span class="order-count">Đang tải đơn hàng...</span></div>
         </section>
 
+        <section class="panel article-management-panel" id="article-management">
+          <div class="panel-heading product-management-heading">
+            <div><h2>Quản lý bài viết</h2><p>Bài viết xuất bản sẽ hiển thị trong mục Tin tức</p></div>
+            <button class="export-button add-article-button" type="button">＋ Thêm bài viết</button>
+          </div>
+          <div class="article-filter-row">
+            <label class="product-search article-search"><span aria-hidden="true">⌕</span><input class="article-search-input" type="search" placeholder="Tìm tiêu đề bài viết..." aria-label="Tìm bài viết theo tiêu đề"></label>
+            <label class="article-filter-label">Danh mục<select class="article-category-filter"><option value="">Tất cả danh mục</option></select></label>
+            <label class="article-filter-label">Trạng thái<select class="article-status-filter"><option value="">Tất cả trạng thái</option><option value="Draft">Bản nháp</option><option value="Published">Đã xuất bản</option></select></label>
+          </div>
+          <div class="product-table-wrap">
+            <table class="product-table article-table">
+              <thead><tr><th>BÀI VIẾT</th><th>DANH MỤC</th><th>TÁC GIẢ</th><th>NGÀY TẠO / CẬP NHẬT</th><th>TRẠNG THÁI</th><th>THAO TÁC</th></tr></thead>
+              <tbody class="article-table-body"></tbody>
+            </table>
+            <p class="empty-articles" hidden>Chưa có bài viết phù hợp.</p>
+          </div>
+          <div class="article-table-footer"><span class="article-count">Đang tải bài viết...</span><div class="article-pagination"></div></div>
+        </section>
+
         <footer class="dashboard-footer"><span>© 2026 Authentic Shoes Admin</span><span>Được thiết kế với <b>♥</b> dành cho cửa hàng của bạn</span></footer>
       </main>
     </div>
@@ -226,6 +248,28 @@
         <button class="export-button product-save-button" type="submit">Lưu sản phẩm</button>
       </div>
     </form>
+  </dialog>
+  <dialog class="admin-article-dialog" aria-labelledby="article-dialog-title">
+    <form class="admin-article-form">
+      <div class="product-dialog-heading">
+        <div><p class="page-eyebrow">NỘI DUNG WEBSITE</p><h2 id="article-dialog-title">Thêm bài viết</h2></div>
+        <button class="close-article-dialog" type="button" aria-label="Đóng">×</button>
+      </div>
+      <label>Tiêu đề<input name="title" required minlength="2" maxlength="200" autocomplete="off"></label>
+      <label>Slug<input name="slug" maxlength="240" placeholder="Tự tạo từ tiêu đề nếu để trống" autocomplete="off"></label>
+      <label>Mô tả ngắn<textarea name="summary" maxlength="500" rows="3"></textarea></label>
+      <label>Nội dung bài viết<textarea name="content" required maxlength="100000" rows="12"></textarea></label>
+      <div class="product-form-row">
+        <label>Ảnh đại diện (URL)<input name="thumbnailUrl" maxlength="500" placeholder="/img/shoe-red.jpg hoặc https://..."></label>
+        <label>Danh mục<input name="category" required maxlength="80" placeholder="Ví dụ: Phong cách"></label>
+      </div>
+      <label>Trạng thái<select name="status"><option value="Draft">Bản nháp</option><option value="Published">Xuất bản</option></select></label>
+      <p class="product-form-error article-form-error" role="alert" hidden></p>
+      <div class="product-dialog-actions"><button class="dialog-cancel-button close-article-dialog" type="button">Hủy</button><button class="export-button article-save-button" type="submit">Lưu bài viết</button></div>
+    </form>
+  </dialog>
+  <dialog class="admin-article-view-dialog" aria-labelledby="article-view-title">
+    <div class="article-view-content"><div class="product-dialog-heading"><div><p class="page-eyebrow">XEM BÀI VIẾT</p><h2 id="article-view-title"></h2></div><button class="close-article-view" type="button" aria-label="Đóng">×</button></div><p class="article-view-meta"></p><p class="article-view-summary"></p><div class="article-view-body"></div></div>
   </dialog>
   <div class="admin-toast" role="status" aria-live="polite"></div>
 </body>

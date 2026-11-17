@@ -198,7 +198,7 @@ async function requestProductApi(path, options = {}) {
     const validationMessages = body?.errors
       ? Object.values(body.errors).flat().join(" ")
       : "";
-    throw new Error(validationMessages || body?.detail || body?.title || "Không thể hoàn tất thao tác sản phẩm.");
+      throw new Error(validationMessages || body?.message || body?.detail || body?.title || "Không thể hoàn tất thao tác.");
   }
 
   return response.status === 204 ? null : response.json();
@@ -660,3 +660,235 @@ document.querySelector(".sidebar-account").addEventListener("click", () => {
 document.querySelector(".more-button").addEventListener("click", () => {
   showAdminToast("Danh sách đang được sắp xếp theo sản phẩm bán chạy.");
 });
+
+const articleTableBody = document.querySelector(".article-table-body");
+const articleSearch = document.querySelector(".article-search-input");
+const articleCategoryFilter = document.querySelector(".article-category-filter");
+const articleStatusFilter = document.querySelector(".article-status-filter");
+const articleForm = document.querySelector(".admin-article-form");
+const articleDialog = document.querySelector(".admin-article-dialog");
+const articleFormError = document.querySelector(".article-form-error");
+const articleViewDialog = document.querySelector(".admin-article-view-dialog");
+let articlePage = 1;
+let articleTotal = 0;
+let articlePageSize = 20;
+let articleSearchTimeout;
+
+function articleDate(value) {
+  return value
+    ? new Intl.DateTimeFormat("vi-VN", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value))
+    : "Chưa xuất bản";
+}
+
+function articleStatusLabel(status) {
+  return status === "Published" ? "Đã xuất bản" : "Bản nháp";
+}
+
+function renderArticleRows(items) {
+  articleTableBody.replaceChildren(...items.map((article) => {
+    const row = document.createElement("tr");
+    row.dataset.articleId = article.id;
+    const titleCell = document.createElement("td");
+    const titleWrap = document.createElement("div");
+    titleWrap.className = "product-table-name article-table-name";
+    if (article.thumbnailUrl) {
+      const image = document.createElement("img");
+      image.className = "product-table-image";
+      image.src = article.thumbnailUrl;
+      image.alt = "";
+      image.loading = "lazy";
+      titleWrap.append(image);
+    }
+    const titleCopy = document.createElement("span");
+    const title = document.createElement("strong");
+    title.textContent = article.title;
+    const slug = document.createElement("small");
+    slug.textContent = `/bai-viet/${article.slug}`;
+    titleCopy.append(title, slug);
+    titleWrap.append(titleCopy);
+    titleCell.append(titleWrap);
+
+    const categoryCell = document.createElement("td");
+    categoryCell.textContent = article.category;
+    const authorCell = document.createElement("td");
+    authorCell.textContent = article.authorName;
+    const dateCell = document.createElement("td");
+    dateCell.className = "article-date-cell";
+    const created = document.createElement("span");
+    created.textContent = `Tạo: ${articleDate(article.createdAt)}`;
+    const updated = document.createElement("small");
+    updated.textContent = `Sửa: ${articleDate(article.updatedAt)}`;
+    dateCell.append(created, updated);
+    const statusCell = document.createElement("td");
+    const status = document.createElement("span");
+    status.className = `article-status-pill ${article.status === "Published" ? "is-published" : "is-draft"}`;
+    status.textContent = articleStatusLabel(article.status);
+    statusCell.append(status);
+
+    const actionCell = document.createElement("td");
+    const actions = document.createElement("div");
+    actions.className = "product-row-actions article-row-actions";
+    for (const [action, label] of [["view", "Xem"], ["edit", "Sửa"], ["delete", "Xóa"]]) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.action = action;
+      button.textContent = label;
+      if (action === "delete") button.className = "delete-product-button";
+      actions.append(button);
+    }
+    actionCell.append(actions);
+    row.append(titleCell, categoryCell, authorCell, dateCell, statusCell, actionCell);
+    return row;
+  }));
+  document.querySelector(".empty-articles").hidden = items.length > 0;
+  document.querySelector(".article-count").textContent = articleTotal
+    ? `Đang hiển thị ${(articlePage - 1) * articlePageSize + 1}–${Math.min(articlePage * articlePageSize, articleTotal)} trên ${articleTotal} bài viết`
+    : "Chưa có bài viết.";
+  renderArticlePagination();
+}
+
+function renderArticlePagination() {
+  const container = document.querySelector(".article-pagination");
+  const pageCount = Math.max(1, Math.ceil(articleTotal / articlePageSize));
+  const buttons = [];
+  const previous = document.createElement("button");
+  previous.type = "button";
+  previous.textContent = "‹";
+  previous.setAttribute("aria-label", "Trang trước");
+  previous.disabled = articlePage <= 1;
+  previous.addEventListener("click", () => { articlePage -= 1; loadArticles(); });
+  buttons.push(previous);
+  const current = document.createElement("span");
+  current.textContent = `Trang ${articlePage} / ${pageCount}`;
+  buttons.push(current);
+  const next = document.createElement("button");
+  next.type = "button";
+  next.textContent = "›";
+  next.setAttribute("aria-label", "Trang sau");
+  next.disabled = articlePage >= pageCount;
+  next.addEventListener("click", () => { articlePage += 1; loadArticles(); });
+  buttons.push(next);
+  container.replaceChildren(...buttons);
+}
+
+async function loadArticleCategories() {
+  const categories = await requestProductApi("/api/admin/articles/categories");
+  articleCategoryFilter.replaceChildren(new Option("Tất cả danh mục", ""), ...categories.map((category) => new Option(category, category)));
+}
+
+async function loadArticles() {
+  const query = new URLSearchParams({ page: String(articlePage) });
+  if (articleSearch.value.trim()) query.set("q", articleSearch.value.trim());
+  if (articleCategoryFilter.value) query.set("category", articleCategoryFilter.value);
+  if (articleStatusFilter.value) query.set("status", articleStatusFilter.value);
+  const result = await requestProductApi(`/api/admin/articles/?${query}`);
+  articleTotal = result.total;
+  articlePageSize = result.pageSize;
+  renderArticleRows(result.items);
+}
+
+function makeArticleSlug(title) {
+  return title.trim().toLocaleLowerCase("vi")
+    .replace(/đ/g, "d")
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+async function openArticleEditor(articleId = null) {
+  articleForm.reset();
+  articleFormError.hidden = true;
+  articleFormError.textContent = "";
+  articleForm.dataset.articleId = articleId ?? "";
+  if (articleId) {
+    const article = await requestProductApi(`/api/admin/articles/${articleId}`);
+    for (const field of ["title", "slug", "summary", "content", "thumbnailUrl", "category", "status"]) {
+      articleForm.elements[field].value = article[field] ?? "";
+    }
+  } else {
+    articleForm.elements.status.value = "Draft";
+  }
+  document.querySelector("#article-dialog-title").textContent = articleId ? "Chỉnh sửa bài viết" : "Thêm bài viết";
+  document.querySelector(".article-save-button").textContent = articleId ? "Lưu thay đổi" : "Lưu bài viết";
+  articleDialog.showModal();
+}
+
+async function openArticlePreview(articleId) {
+  const article = await requestProductApi(`/api/admin/articles/${articleId}`);
+  document.querySelector("#article-view-title").textContent = article.title;
+  document.querySelector(".article-view-meta").textContent = `${article.category} · ${article.authorName} · ${articleDate(article.updatedAt)}`;
+  document.querySelector(".article-view-summary").textContent = article.summary;
+  document.querySelector(".article-view-body").textContent = article.content;
+  articleViewDialog.showModal();
+}
+
+document.querySelector(".add-article-button").addEventListener("click", () => openArticleEditor().catch((error) => showAdminToast(error.message)));
+document.querySelectorAll(".close-article-dialog").forEach((button) => button.addEventListener("click", () => articleDialog.close()));
+document.querySelector(".close-article-view").addEventListener("click", () => articleViewDialog.close());
+articleSearch.addEventListener("input", () => {
+  window.clearTimeout(articleSearchTimeout);
+  articleSearchTimeout = window.setTimeout(() => { articlePage = 1; loadArticles().catch((error) => showAdminToast(error.message)); }, 250);
+});
+articleCategoryFilter.addEventListener("change", () => { articlePage = 1; loadArticles().catch((error) => showAdminToast(error.message)); });
+articleStatusFilter.addEventListener("change", () => { articlePage = 1; loadArticles().catch((error) => showAdminToast(error.message)); });
+
+articleTableBody.addEventListener("click", async (event) => {
+  const button = event.target.closest("button[data-action]");
+  if (!button) return;
+  const articleId = Number(button.closest("tr").dataset.articleId);
+  try {
+    if (button.dataset.action === "view") await openArticlePreview(articleId);
+    if (button.dataset.action === "edit") await openArticleEditor(articleId);
+    if (button.dataset.action === "delete") {
+      const title = button.closest("tr").querySelector("strong").textContent;
+      if (!window.confirm(`Bạn có chắc muốn xóa bài viết “${title}” không?`)) return;
+      const token = await getAntiforgeryToken();
+      await requestProductApi(`/api/admin/articles/${articleId}`, {
+        method: "DELETE",
+        headers: { RequestVerificationToken: token }
+      });
+      await loadArticles();
+      await loadArticleCategories();
+      showAdminToast("Đã xóa bài viết.");
+    }
+  } catch (error) {
+    console.error("Could not perform article action.", error);
+    showAdminToast(error.message);
+  }
+});
+
+articleForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (!articleForm.reportValidity()) return;
+  const formData = new FormData(articleForm);
+  const articleId = articleForm.dataset.articleId;
+  const payload = Object.fromEntries(["title", "slug", "summary", "content", "thumbnailUrl", "category", "status"]
+    .map((field) => [field, String(formData.get(field) ?? "").trim()]));
+  if (!payload.slug) payload.slug = makeArticleSlug(payload.title);
+  const saveButton = document.querySelector(".article-save-button");
+  saveButton.disabled = true;
+  articleFormError.hidden = true;
+  try {
+    const token = await getAntiforgeryToken();
+    await requestProductApi(articleId ? `/api/admin/articles/${articleId}` : "/api/admin/articles/", {
+      method: articleId ? "PUT" : "POST",
+      headers: { RequestVerificationToken: token },
+      body: JSON.stringify(payload)
+    });
+    articleDialog.close();
+    await loadArticles();
+    await loadArticleCategories();
+    showAdminToast(articleId ? "Đã cập nhật bài viết." : "Đã thêm bài viết.");
+  } catch (error) {
+    articleFormError.textContent = error.message;
+    articleFormError.hidden = false;
+  } finally {
+    saveButton.disabled = false;
+  }
+});
+
+loadArticleCategories()
+  .then(loadArticles)
+  .catch((error) => {
+    console.error("Could not load articles.", error);
+    document.querySelector(".article-count").textContent = "Không thể tải bài viết. Hãy tải lại trang.";
+  });

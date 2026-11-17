@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="styles.css?v=featured-collections-banners">
   <script src="store-cart.js?v=color-size-inventory" defer></script>
   <script src="script.js?v=featured-collections-banners" defer></script>
+  <script src="index-news.js?v=blog-crud" defer></script>
 </head>
 <body>
   <header class="site-header">
@@ -300,22 +301,10 @@
     <section class="section news-section" id="news">
       <div class="section-heading">
         <div><p class="section-kicker">STORIES & UPDATES</p><h2>Tin tức & cảm hứng</h2></div>
-        <a class="text-link" href="#news">Xem tất cả tin tức <span>↗</span></a>
+        <a class="text-link" href="/articles.html">Xem tất cả tin tức <span>↗</span></a>
       </div>
-      <div class="news-grid">
-        <article class="news-card">
-          <a class="news-image news-image-one" href="#products"><img src="img/shoe-detail.jpg" alt="Bộ sưu tập sneaker mới"></a>
-          <div class="news-info"><p>29.10.2026 <span>•</span> PHONG CÁCH</p><h3>Những đôi sneaker kinh điển trở lại trong mùa mới</h3><a href="#products">Đọc bài viết <span>→</span></a></div>
-        </article>
-        <article class="news-card">
-          <a class="news-image news-image-two" href="#products"><img src="img/shoe-red.jpg" alt="Giày thể thao đỏ"></a>
-          <div class="news-info"><p>24.10.2026 <span>•</span> SẢN PHẨM</p><h3>Chọn giày tennis phù hợp để tự tin trên sân</h3><a href="#products">Đọc bài viết <span>→</span></a></div>
-        </article>
-        <article class="news-card">
-          <a class="news-image news-image-three" href="#products"><img src="img/shoe-teal.jpg" alt="Phong cách thể thao với sneaker đen trắng cam"></a>
-          <div class="news-info"><p>18.10.2026 <span>•</span> CẢM HỨNG</p><h3>Năng lượng mới cho mỗi bước chân của bạn</h3><a href="#products">Đọc bài viết <span>→</span></a></div>
-        </article>
-      </div>
+      <p class="news-loading" data-home-articles-status role="status" aria-live="polite">Đang tải tin tức…</p>
+      <div class="news-grid" data-home-articles></div>
     </section>
   </main>
 

@@ -9,6 +9,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<ProductVariant> ProductVariants => Set<ProductVariant>();
     public DbSet<StoreOrder> StoreOrders => Set<StoreOrder>();
     public DbSet<StoreOrderItem> StoreOrderItems => Set<StoreOrderItem>();
+    public DbSet<Article> Articles => Set<Article>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -65,6 +66,25 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(item => item.ProductImageUrl).HasMaxLength(500).IsRequired();
             entity.Property(item => item.Variant).HasMaxLength(30);
             entity.Property(item => item.Color).HasMaxLength(40);
+        });
+
+        builder.Entity<Article>(entity =>
+        {
+            entity.Property(article => article.Title).HasMaxLength(200).IsRequired();
+            entity.Property(article => article.Slug).HasMaxLength(240).IsRequired();
+            entity.Property(article => article.Summary).HasMaxLength(500).IsRequired();
+            entity.Property(article => article.Content).IsRequired();
+            entity.Property(article => article.ThumbnailUrl).HasMaxLength(500);
+            entity.Property(article => article.Category).HasMaxLength(80).IsRequired();
+            entity.Property(article => article.AuthorId).HasMaxLength(450).IsRequired();
+            entity.Property(article => article.Status).HasConversion<string>().HasMaxLength(20).IsRequired();
+            entity.HasIndex(article => article.Slug).IsUnique();
+            entity.HasIndex(article => new { article.Status, article.Category, article.PublishedAt });
+            entity.HasIndex(article => article.CreatedAt);
+            entity.HasOne(article => article.Author)
+                .WithMany()
+                .HasForeignKey(article => article.AuthorId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }
