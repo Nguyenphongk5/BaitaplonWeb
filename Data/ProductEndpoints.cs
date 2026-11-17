@@ -571,9 +571,9 @@ public static class ProductEndpoints
             errors[nameof(request.ProvinceOrCity)] = ["Vui lòng chọn tỉnh/thành phố."];
         }
 
-        if (!string.IsNullOrWhiteSpace(request.District) && request.District.Trim().Length > 120)
+        if (string.IsNullOrWhiteSpace(request.District) || request.District.Trim().Length > 120)
         {
-            errors[nameof(request.District)] = ["Quận/huyện không được vượt quá 120 ký tự."];
+            errors[nameof(request.District)] = ["Vui lòng chọn hoặc nhập quận/huyện (tối đa 120 ký tự)."];
         }
 
         if (string.IsNullOrWhiteSpace(request.WardOrCommune) || request.WardOrCommune.Trim().Length > 120)

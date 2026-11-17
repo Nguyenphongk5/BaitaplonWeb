@@ -227,20 +227,40 @@
       `/register?${new URLSearchParams({ ReturnUrl: returnUrl })}`;
   }
 
-  function populateAddressOptions() {
-    const provinceSelect = checkoutForm.elements.provinceOrCity;
-    const wardSelect = checkoutForm.elements.wardOrCommune;
-    const selectedProvince = locations.find((location) => location.name === provinceSelect.value);
-    const wards = selectedProvince?.wards ?? [];
-    wardSelect.replaceChildren(new Option("Chọn phường/xã/đặc khu", ""));
-    for (const ward of wards) {
-      wardSelect.add(new Option(ward.name, ward.name));
-    }
-    wardSelect.disabled = wards.length === 0;
+  function populateDatalist(id, values) {
+    const datalist = checkoutForm.querySelector(`#${id}`);
+    datalist.replaceChildren(...values.map((value) => {
+      const option = new Option(value);
+      option.label = value.replace(/^(?:Tỉnh|Thành phố|Quận|Huyện|Thị xã|Phường|Xã|Thị trấn)\s+/i, "");
+      return option;
+    }));
+  }
+
+  function populateDistrictSuggestions() {
+    const province = locations.find((location) => location.name.toLocaleLowerCase() ===
+      checkoutForm.elements.provinceOrCity.value.trim().toLocaleLowerCase());
+    populateDatalist("district-options", province?.districts.map((district) => district.name) ?? []);
+    populateDatalist("ward-options", []);
+  }
+
+  function populateWardSuggestions() {
+    const province = locations.find((location) => location.name.toLocaleLowerCase() ===
+      checkoutForm.elements.provinceOrCity.value.trim().toLocaleLowerCase());
+    const district = province?.districts.find((entry) => entry.name.toLocaleLowerCase() ===
+      checkoutForm.elements.district.value.trim().toLocaleLowerCase());
+    populateDatalist("ward-options", district?.wards ?? []);
   }
 
   function wireEvents() {
-    checkoutForm.elements.provinceOrCity.addEventListener("change", populateAddressOptions);
+    checkoutForm.elements.provinceOrCity.addEventListener("input", () => {
+      checkoutForm.elements.district.value = "";
+      checkoutForm.elements.wardOrCommune.value = "";
+      populateDistrictSuggestions();
+    });
+    checkoutForm.elements.district.addEventListener("input", () => {
+      checkoutForm.elements.wardOrCommune.value = "";
+      populateWardSuggestions();
+    });
 
     document.addEventListener("click", async (event) => {
       if (event.target.closest(".cart-button")) {
@@ -348,7 +368,7 @@
         saveItems();
         renderItems();
         checkoutForm.reset();
-        populateAddressOptions();
+        populateDistrictSuggestions();
         dialog.close();
         showToast(`Đặt hàng thành công! Mã đơn #AS-${String(result.id).padStart(6, "0")}. Thanh toán khi nhận hàng.`);
         try {
@@ -371,7 +391,7 @@
   ready = (async () => {
     items = loadItems();
     const [markupResponse, productResponse, accountResponse, locationsResponse] = await Promise.all([
-      fetch("/cart-panel.html?v=structured-shipping-address"),
+      fetch("/cart-panel.html?v=hierarchical-shipping-address"),
       fetch("/api/products"),
       fetch("/auth/status"),
       fetch("/data/vietnam-addresses.json")
@@ -389,11 +409,9 @@
     itemList = document.querySelector(".cart-items");
     checkoutForm = document.querySelector(".checkout-form");
     checkoutError = document.querySelector(".checkout-error");
-    const provinceSelect = checkoutForm.elements.provinceOrCity;
-    for (const location of locations) {
-      provinceSelect.add(new Option(location.name, location.name));
-    }
-    populateAddressOptions();
+    populateDatalist("province-options", locations.map((location) => location.name));
+    populateDistrictSuggestions();
+    populateWardSuggestions();
     configureAuthenticationLinks();
     wireEvents();
     saveItems();
