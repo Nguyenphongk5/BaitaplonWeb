@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using BaitaplonWeb;
 using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace BaitaplonWeb.Data;
@@ -320,6 +321,56 @@ public static class ProductEndpoints
 
         var adminProducts = app.MapGroup("/api/admin/products")
             .RequireAuthorization(policy => policy.RequireRole(RoleNames.Admin));
+
+        const long maxProductImageBytes = 5 * 1024 * 1024;
+        adminProducts.MapPost("/images", async (
+            IFormFile file,
+            HttpContext context,
+            IAntiforgery antiforgery,
+            IWebHostEnvironment environment,
+            CancellationToken cancellationToken) =>
+        {
+            if (!await HasValidAntiforgeryToken(context, antiforgery))
+            {
+                return Results.BadRequest(new { message = "Mã bảo mật không hợp lệ. Hãy tải lại trang và thử lại." });
+            }
+
+            if (file.Length is <= 0 or > maxProductImageBytes)
+            {
+                return Results.BadRequest(new { message = "Ảnh phải có dung lượng từ 1 byte đến 5 MB." });
+            }
+
+            await using var imageStream = file.OpenReadStream();
+            var header = new byte[12];
+            var headerLength = 0;
+            while (headerLength < header.Length)
+            {
+                var bytesRead = await imageStream.ReadAsync(header.AsMemory(headerLength), cancellationToken);
+                if (bytesRead == 0) break;
+                headerLength += bytesRead;
+            }
+            var extension = DetectProductImageExtension(header.AsSpan(0, headerLength));
+            if (extension is null)
+            {
+                return Results.BadRequest(new { message = "Chỉ chấp nhận ảnh JPEG, PNG hoặc WebP hợp lệ." });
+            }
+
+            var webRoot = environment.WebRootPath ?? Path.Combine(environment.ContentRootPath, "wwwroot");
+            var uploadDirectory = Path.Combine(webRoot, "uploads", "products");
+            Directory.CreateDirectory(uploadDirectory);
+            var fileName = $"{Guid.NewGuid():N}.{extension}";
+            var destination = Path.Combine(uploadDirectory, fileName);
+            await using (var destinationStream = new FileStream(destination, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            {
+                await destinationStream.WriteAsync(header.AsMemory(0, headerLength), cancellationToken);
+                await imageStream.CopyToAsync(destinationStream, cancellationToken);
+            }
+
+            return Results.Ok(new { imageUrl = $"/uploads/products/{fileName}" });
+        })
+        .WithMetadata(
+            new RequestSizeLimitAttribute(maxProductImageBytes + 64 * 1024),
+            new RequestFormLimitsAttribute { MultipartBodyLengthLimit = maxProductImageBytes + 64 * 1024 });
 
         adminProducts.MapGet("/", async (ApplicationDbContext database, CancellationToken cancellationToken) =>
         {
@@ -722,7 +773,8 @@ public static class ProductEndpoints
     {
         var value = imageUrl.Trim();
         if (value.StartsWith("/img/", StringComparison.Ordinal)
-            || value.StartsWith("/assets/", StringComparison.Ordinal))
+            || value.StartsWith("/assets/", StringComparison.Ordinal)
+            || value.StartsWith("/uploads/products/", StringComparison.Ordinal))
         {
             return !value.Contains("..", StringComparison.Ordinal)
                 && !value.Contains('\\')
@@ -731,6 +783,29 @@ public static class ProductEndpoints
 
         return Uri.TryCreate(value, UriKind.Absolute, out var uri)
             && uri.Scheme == Uri.UriSchemeHttps;
+    }
+
+    private static string? DetectProductImageExtension(ReadOnlySpan<byte> header)
+    {
+        if (header.Length >= 3 && header[0] == 0xFF && header[1] == 0xD8 && header[2] == 0xFF)
+        {
+            return "jpg";
+        }
+
+        ReadOnlySpan<byte> pngSignature = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
+        if (header.StartsWith(pngSignature))
+        {
+            return "png";
+        }
+
+        if (header.Length >= 12
+            && header[..4].SequenceEqual("RIFF"u8)
+            && header[8..12].SequenceEqual("WEBP"u8))
+        {
+            return "webp";
+        }
+
+        return null;
     }
 
     private static string? CleanBadge(string? badge)
