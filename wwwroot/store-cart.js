@@ -8,6 +8,7 @@
   let itemList;
   let checkoutForm;
   let checkoutError;
+  let locations = [];
   let isAuthenticated = false;
   let ready;
   let toastTimeout;
@@ -226,7 +227,41 @@
       `/register?${new URLSearchParams({ ReturnUrl: returnUrl })}`;
   }
 
+  function populateDatalist(id, values) {
+    const datalist = checkoutForm.querySelector(`#${id}`);
+    datalist.replaceChildren(...values.map((value) => {
+      const option = new Option(value);
+      option.label = value.replace(/^(?:Tỉnh|Thành phố|Quận|Huyện|Thị xã|Phường|Xã|Thị trấn)\s+/i, "");
+      return option;
+    }));
+  }
+
+  function populateDistrictSuggestions() {
+    const province = locations.find((location) => location.name.toLocaleLowerCase() ===
+      checkoutForm.elements.provinceOrCity.value.trim().toLocaleLowerCase());
+    populateDatalist("district-options", province?.districts.map((district) => district.name) ?? []);
+    populateDatalist("ward-options", []);
+  }
+
+  function populateWardSuggestions() {
+    const province = locations.find((location) => location.name.toLocaleLowerCase() ===
+      checkoutForm.elements.provinceOrCity.value.trim().toLocaleLowerCase());
+    const district = province?.districts.find((entry) => entry.name.toLocaleLowerCase() ===
+      checkoutForm.elements.district.value.trim().toLocaleLowerCase());
+    populateDatalist("ward-options", district?.wards ?? []);
+  }
+
   function wireEvents() {
+    checkoutForm.elements.provinceOrCity.addEventListener("input", () => {
+      checkoutForm.elements.district.value = "";
+      checkoutForm.elements.wardOrCommune.value = "";
+      populateDistrictSuggestions();
+    });
+    checkoutForm.elements.district.addEventListener("input", () => {
+      checkoutForm.elements.wardOrCommune.value = "";
+      populateWardSuggestions();
+    });
+
     document.addEventListener("click", async (event) => {
       if (event.target.closest(".cart-button")) {
         event.preventDefault();
@@ -305,7 +340,10 @@
           body: JSON.stringify({
             customerName: formData.get("customerName"),
             phoneNumber: formData.get("phoneNumber"),
-            shippingAddress: formData.get("shippingAddress"),
+            provinceOrCity: formData.get("provinceOrCity"),
+            district: formData.get("district"),
+            wardOrCommune: formData.get("wardOrCommune"),
+            streetAddress: formData.get("streetAddress"),
             items: items.map((item) => ({
               productId: item.productId,
               quantity: item.quantity,
@@ -330,6 +368,7 @@
         saveItems();
         renderItems();
         checkoutForm.reset();
+        populateDistrictSuggestions();
         dialog.close();
         showToast(`Đặt hàng thành công! Mã đơn #AS-${String(result.id).padStart(6, "0")}. Thanh toán khi nhận hàng.`);
         try {
@@ -351,16 +390,18 @@
 
   ready = (async () => {
     items = loadItems();
-    const [markupResponse, productResponse, accountResponse] = await Promise.all([
-      fetch("/cart-panel.html"),
+    const [markupResponse, productResponse, accountResponse, locationsResponse] = await Promise.all([
+      fetch("/cart-panel.html?v=hierarchical-shipping-address"),
       fetch("/api/products"),
-      fetch("/auth/status")
+      fetch("/auth/status"),
+      fetch("/data/vietnam-addresses.json")
     ]);
-    if (!markupResponse.ok || !productResponse.ok || !accountResponse.ok) {
-      throw new Error("Không thể tải giỏ hàng hoặc danh sách sản phẩm.");
+    if (!markupResponse.ok || !productResponse.ok || !accountResponse.ok || !locationsResponse.ok) {
+      throw new Error("Không thể tải giỏ hàng, sản phẩm hoặc dữ liệu địa chỉ.");
     }
     document.querySelector("#cart-root").innerHTML = await markupResponse.text();
     const loadedProducts = await productResponse.json();
+    locations = await locationsResponse.json();
     isAuthenticated = (await accountResponse.json()).isAuthenticated;
     products = new Map(loadedProducts.map((product) => [product.id, product]));
     items = items.filter((item) => products.has(item.productId));
@@ -368,6 +409,9 @@
     itemList = document.querySelector(".cart-items");
     checkoutForm = document.querySelector(".checkout-form");
     checkoutError = document.querySelector(".checkout-error");
+    populateDatalist("province-options", locations.map((location) => location.name));
+    populateDistrictSuggestions();
+    populateWardSuggestions();
     configureAuthenticationLinks();
     wireEvents();
     saveItems();

@@ -170,8 +170,10 @@ button { color: inherit; }
 .checkout-login-required[hidden], .checkout-fields[hidden] { display: none; }
 .checkout-form h3 { margin: 4px 0 2px; }
 .checkout-form label:not(.checkout-payment-option):not(.checkout-terms) { display: grid; gap: 5px; font-size: 10px; font-weight: 700; }
-.checkout-form input:not([type="radio"]):not([type="checkbox"]), .checkout-form textarea { width: 100%; padding: 10px 11px; border: 1px solid #e2e2e0; border-radius: 7px; outline: 0; font: inherit; font-size: 11px; resize: vertical; }
-.checkout-form input:focus, .checkout-form textarea:focus { border-color: #f26522; box-shadow: 0 0 0 3px #f2652218; }
+.checkout-address-help { margin: -2px 0 1px; color: #777; font-size: 9px; font-weight: 400; }
+.checkout-form input:not([type="radio"]):not([type="checkbox"]), .checkout-form textarea, .checkout-form select { width: 100%; padding: 10px 11px; border: 1px solid #e2e2e0; border-radius: 7px; outline: 0; background-color: #fff; font: inherit; font-size: 11px; resize: vertical; }
+.checkout-form input:focus, .checkout-form textarea:focus, .checkout-form select:focus { border-color: #f26522; box-shadow: 0 0 0 3px #f2652218; }
+.checkout-form select:disabled { color: #888; background: #f6f6f6; }
 .checkout-payment-option { display: flex; min-height: 47px; align-items: center; gap: 11px; padding: 9px 12px; border: 1px solid #ff7b32; border-radius: 10px; background: #fffaf6; }
 .checkout-payment-option input { width: 15px; height: 15px; accent-color: var(--orange); }
 .checkout-payment-option span { display: grid; gap: 3px; }

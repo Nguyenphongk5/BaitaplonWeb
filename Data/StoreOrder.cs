@@ -7,6 +7,10 @@ public sealed class StoreOrder
     public required string CustomerName { get; set; }
     public required string PhoneNumber { get; set; }
     public required string ShippingAddress { get; set; }
+    public string? ProvinceOrCity { get; set; }
+    public string? District { get; set; }
+    public string? WardOrCommune { get; set; }
+    public string? StreetAddress { get; set; }
     public long TotalAmount { get; set; }
     public string Status { get; set; } = OrderStatuses.Pending;
     public DateTime CreatedAtUtc { get; set; }

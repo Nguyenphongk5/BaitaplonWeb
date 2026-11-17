@@ -1,8 +1,32 @@
 ﻿@page
 @model PrivacyModel
 @{
-    ViewData["Title"] = "Quyền riêng tư";
+    ViewData["Title"] = "Chính sách quyền riêng tư";
 }
 <h1>@ViewData["Title"]</h1>
 
-<p>Thông tin về dữ liệu tài khoản, đơn hàng, cookie và cách website sử dụng dữ liệu được trình bày tại <a href="/privacy.html">trang quyền riêng tư của Authentic Shoes</a>.</p>
+<p>Chính sách này mô tả dữ liệu mà cửa hàng Authentic Shoes xử lý trong phiên bản hiện tại của ứng dụng. Đơn vị vận hành cần cập nhật chính sách nếu thay đổi cách thu thập, sử dụng, lưu trữ hoặc chia sẻ dữ liệu.</p>
+<p>Chi tiết chính sách cũng được công bố tại <a href="/privacy.html">trang quyền riêng tư của Authentic Shoes</a>.</p>
+
+<h2>Dữ liệu được thu thập</h2>
+<ul>
+    <li>Khi tạo tài khoản: họ tên, email và mật khẩu. Mật khẩu được ASP.NET Core Identity băm trước khi lưu, không lưu dưới dạng văn bản rõ.</li>
+    <li>Khi đặt hàng: tên người nhận, số điện thoại, địa chỉ giao hàng, sản phẩm đã đặt, phân loại, số lượng, tổng tiền và trạng thái đơn hàng.</li>
+    <li>Giỏ hàng: được lưu trong bộ nhớ cục bộ (<code>localStorage</code>) của trình duyệt trên thiết bị người dùng.</li>
+    <li>Ứng dụng chỉ hỗ trợ thanh toán COD và không thu thập thông tin thẻ thanh toán.</li>
+</ul>
+
+<h2>Mục đích sử dụng</h2>
+<p>Dữ liệu tài khoản được dùng để xác thực và quản lý tài khoản. Dữ liệu đơn hàng được dùng để tiếp nhận, xử lý và giao đơn, quản lý tồn kho, cũng như hiển thị lịch sử và trạng thái đơn hàng cho khách hàng đã đăng nhập. Không sử dụng dữ liệu cho mục đích khác nếu chưa thông báo và có căn cứ hoặc sự đồng ý cần thiết.</p>
+
+<h2>Lưu trữ và bảo vệ dữ liệu</h2>
+<p>Dữ liệu tài khoản và đơn hàng được lưu trong SQL Server được cấu hình cho ứng dụng. Cookie đăng nhập được đặt thuộc tính <code>HttpOnly</code> và <code>SameSite=Lax</code>; khi triển khai, kết nối cần được bảo vệ bằng HTTPS. Đơn vị vận hành cần giới hạn quyền truy cập, cập nhật bản vá, bảo vệ bản sao lưu và xác định thời hạn lưu giữ phù hợp. Ứng dụng hiện chưa tự động xóa dữ liệu theo thời hạn.</p>
+
+<h2>Chia sẻ dữ liệu</h2>
+<p>Ứng dụng hiện không tích hợp cổng thanh toán hoặc dịch vụ quảng cáo. Thông tin giao hàng chỉ được dùng để xử lý đơn; nếu đơn vị vận hành chuyển thông tin cho bên giao hàng hoặc nhà cung cấp dịch vụ khác, cần thông báo rõ đối tượng nhận, mục đích và cơ sở chia sẻ trước khi áp dụng. Nhà cung cấp dịch vụ lưu trữ có thể xử lý dữ liệu kỹ thuật theo cấu hình triển khai thực tế.</p>
+
+<h2>Thời hạn lưu giữ và quyền của người dùng</h2>
+<p>Dữ liệu đơn hàng và tài khoản được giữ trong cơ sở dữ liệu cho đến khi đơn vị vận hành xóa hoặc áp dụng chính sách lưu giữ. Ứng dụng hiện chưa có chức năng tự phục vụ để xem, sửa hoặc xóa tài khoản. Người dùng có thể liên hệ đơn vị vận hành cửa hàng để yêu cầu truy cập, chỉnh sửa hoặc xóa dữ liệu, hoặc rút lại sự đồng ý khi áp dụng; việc xử lý yêu cầu cần tuân theo nghĩa vụ lưu trữ theo pháp luật liên quan.</p>
+
+<h2>Thông tin dành cho đơn vị vận hành</h2>
+<p>Trước khi đưa dịch vụ vào hoạt động thực tế, hãy bổ sung tên và thông tin liên hệ của đơn vị kiểm soát dữ liệu, thời hạn lưu trữ cụ thể, thông tin nhà cung cấp/hạ tầng và cách gửi yêu cầu về dữ liệu cá nhân. Cần rà soát chính sách theo luật tại các khu vực phục vụ; trang này không thay thế tư vấn pháp lý và không khẳng định ứng dụng đã tuân thủ mọi quy định.</p>

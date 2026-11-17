@@ -28,7 +28,17 @@
           <h3 class="checkout-customer-title">Thông tin nhận hàng</h3>
           <label>Họ và tên<input name="customerName" maxlength="120" autocomplete="name" required></label>
           <label>Số điện thoại<input name="phoneNumber" type="tel" maxlength="30" autocomplete="tel" required></label>
-          <label>Địa chỉ giao hàng<textarea name="shippingAddress" maxlength="500" autocomplete="street-address" rows="2" required></textarea></label>
+          <p class="checkout-address-help">Gõ để lọc gợi ý hoặc nhập trực tiếp nếu không thấy địa chỉ.</p>
+          <label>Tỉnh / Thành phố<input name="provinceOrCity" list="province-options" maxlength="120" autocomplete="address-level1" placeholder="Nhập hoặc chọn tỉnh/thành phố" required>
+            <datalist id="province-options"></datalist>
+          </label>
+          <label>Quận / Huyện / Thành phố<input name="district" list="district-options" maxlength="120" autocomplete="address-level2" placeholder="Nhập hoặc chọn quận/huyện" required>
+            <datalist id="district-options"></datalist>
+          </label>
+          <label>Phường / Xã<input name="wardOrCommune" list="ward-options" maxlength="120" autocomplete="address-level3" placeholder="Nhập hoặc chọn phường/xã" required>
+            <datalist id="ward-options"></datalist>
+          </label>
+          <label>Địa chỉ cụ thể<input name="streetAddress" maxlength="250" autocomplete="street-address" placeholder="Số nhà, tên đường..." required></label>
           <label class="checkout-terms">
             <input name="agreeTerms" type="checkbox" required>
             <span>Tôi đã đọc và đồng ý với <a href="/support.html#terms">điều khoản sử dụng</a> và <a href="/privacy.html">chính sách bảo vệ thông tin cá nhân</a>.</span>
