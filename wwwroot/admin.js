@@ -11,7 +11,6 @@ const productDialog = document.querySelector(".admin-product-dialog");
 const productForm = document.querySelector(".admin-product-form");
 const productFormError = document.querySelector(".product-form-error");
 const productImageFile = document.querySelector(".product-image-file");
-const productImageUrl = document.querySelector(".product-image-url");
 const productImagePreview = document.querySelector(".product-image-preview");
 const productCount = document.querySelector(".product-count");
 const productColorGroups = document.querySelector(".product-color-groups");
@@ -207,6 +206,20 @@ async function loadOrders(page = 1) {
   renderOrders();
 }
 
+async function loadDashboard() {
+  const dashboard = await requestProductApi("/api/admin/dashboard");
+  document.querySelector('[data-stat="orders"]').textContent = new Intl.NumberFormat("vi-VN").format(dashboard.ordersThisMonth);
+  document.querySelector('[data-stat="customers"]').textContent = new Intl.NumberFormat("vi-VN").format(dashboard.customersThisMonth);
+
+  const now = new Date();
+  document.querySelector(".dashboard-date").textContent = new Intl.DateTimeFormat("vi-VN", {
+    weekday: "long", day: "2-digit", month: "long", year: "numeric"
+  }).format(now).toLocaleUpperCase("vi");
+  document.querySelector(".dashboard-month").textContent = new Intl.DateTimeFormat("vi-VN", {
+    month: "long", year: "numeric"
+  }).format(now);
+}
+
 ordersTableBody.addEventListener("change", async (event) => {
   const select = event.target.closest(".order-status-select");
   if (!select) return;
@@ -283,16 +296,11 @@ function showProductImagePreview(imageUrl) {
   productImagePreview.hidden = false;
 }
 
-productImageUrl.addEventListener("input", () => {
-  if (!productImageFile.files?.length) showProductImagePreview(productImageUrl.value.trim());
-});
-
 productImageFile.addEventListener("change", () => {
   const file = productImageFile.files?.[0];
   if (!file) {
     productImageFile.setCustomValidity("");
-    productImageUrl.required = true;
-    showProductImagePreview(productImageUrl.value.trim());
+    showProductImagePreview(productForm.dataset.existingImageUrl ?? "");
     return;
   }
 
@@ -309,7 +317,6 @@ productImageFile.addEventListener("change", () => {
   }
 
   productImageFile.setCustomValidity("");
-  productImageUrl.required = false;
   showProductImagePreview("");
   productImagePreviewObjectUrl = URL.createObjectURL(file);
   productImagePreview.src = productImagePreviewObjectUrl;
@@ -442,12 +449,12 @@ function openProductDialog(product = null) {
   productFormError.hidden = true;
   productFormError.textContent = "";
   productForm.dataset.productId = product?.id ?? "";
+  productForm.dataset.existingImageUrl = product?.imageUrl ?? "";
+  productImageFile.required = !product;
   productForm.elements.name.value = product?.name ?? "";
   productForm.elements.brand.value = product?.brand ?? "";
   productForm.elements.category.value = product?.category ?? "tennis";
   productForm.elements.price.value = product?.price ?? "";
-  productForm.elements.imageUrl.value = product?.imageUrl ?? "";
-  productImageUrl.required = true;
   showProductImagePreview(product?.imageUrl ?? "");
   productForm.elements.badge.value = product?.badge ?? "";
   productForm.elements.stockQuantity.value = product?.stockQuantity ?? 10;
@@ -561,6 +568,7 @@ async function initializeProductManagement() {
   await loadProducts();
   await loadOrders();
   await loadReports();
+  await loadDashboard();
 }
 
 initializeProductManagement().catch((error) => {
@@ -619,7 +627,7 @@ productForm.addEventListener("submit", async (event) => {
     brand: formData.get("brand").trim(),
     category: formData.get("category"),
     price: Number(formData.get("price")),
-    imageUrl: formData.get("imageUrl").trim(),
+    imageUrl: productForm.dataset.existingImageUrl ?? "",
     badge: formData.get("badge").trim() || null,
     stockQuantity: Number(formData.get("stockQuantity") || 0),
     variants: [...productColorGroups.querySelectorAll(".product-color-group")].flatMap((group) => {
@@ -650,6 +658,8 @@ productForm.addEventListener("submit", async (event) => {
         body: uploadForm
       });
       payload.imageUrl = uploadedImage.imageUrl;
+    } else if (!productId) {
+      throw new Error("Vui lòng chọn ảnh sản phẩm từ máy.");
     }
     const savedProduct = await requestProductApi(
       productId ? `/api/admin/products/${productId}` : "/api/admin/products",
@@ -782,19 +792,30 @@ document.querySelector(".export-report-button").addEventListener("click", () => 
   link.href = URL.createObjectURL(file);
   link.download = "authentic-shoes-bao-cao-doanh-thu.csv";
   link.click();
-  URL.revokeObjectURL(link.href);
+  window.setTimeout(() => URL.revokeObjectURL(link.href), 1000);
   showAdminToast("\u0110\u00e3 t\u1ea3i b\u00e1o c\u00e1o 12 th\u00e1ng t\u1eeb d\u1eef li\u1ec7u \u0111\u01a1n h\u00e0ng.");
 });
 
-document.querySelector(".notification-button").addEventListener("click", () => {
-  showAdminToast("Chưa có thông báo mới.");
-});
-
-document.querySelectorAll(".row-more").forEach((button) => {
-  button.addEventListener("click", () => {
-    const orderId = button.getAttribute("aria-label").replace("Tùy chọn đơn hàng ", "");
-    showAdminToast(`Đơn hàng ${orderId} · Trang quản trị đang dùng dữ liệu mẫu.`);
-  });
+document.querySelector(".export-orders-button").addEventListener("click", () => {
+  const protectSpreadsheetCell = (value) => {
+    const text = String(value ?? "");
+    return /^[\s\uFEFF]*[=+\-@]/.test(text) ? `'${text}` : text;
+  };
+  const rows = [
+    ["Mã đơn hàng", "Khách hàng", "Ngày đặt", "Sản phẩm", "Tổng tiền COD", "Trạng thái"],
+    ...orderRows
+      .filter((row) => !row.hidden)
+      .map((row) => [...row.cells].slice(0, 6).map((cell) =>
+        protectSpreadsheetCell(cell.innerText.replace(/\s+/g, " ").trim())))
+  ];
+  const csv = `\uFEFF${rows.map((row) => row.map((value) => `"${value.replace(/"/g, '""')}"`).join(",")).join("\r\n")}`;
+  const file = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(file);
+  link.download = "authentic-shoes-don-hang.csv";
+  link.click();
+  window.setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  showAdminToast("Đã tải báo cáo đơn hàng dạng CSV.");
 });
 
 document.querySelector(".profile-button").addEventListener("click", () => {
@@ -803,8 +824,4 @@ document.querySelector(".profile-button").addEventListener("click", () => {
 
 document.querySelector(".sidebar-account").addEventListener("click", () => {
   window.location.href = "/account";
-});
-
-document.querySelector(".more-button").addEventListener("click", () => {
-  showAdminToast("Danh sách đang được sắp xếp theo sản phẩm bán chạy.");
 });
