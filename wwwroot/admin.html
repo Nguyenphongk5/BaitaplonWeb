@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="admin.css?v=multi-color-size-editor">
-  <script src="admin.js?v=variant-stock-total" defer></script>
+  <script src="admin.js?v=product-image-upload" defer></script>
 </head>
 <body>
   <div class="admin-layout">
@@ -217,8 +217,8 @@
         </div>
         <div class="product-color-groups"></div>
       </section>
-      <label>Đường dẫn ảnh<input name="imageUrl" required maxlength="500" placeholder="/img/shoe-white.jpg"></label>
-      <p class="product-image-help">Dùng ảnh trong thư mục img (ví dụ /img/shoe-white.jpg) hoặc đường dẫn HTTPS.</p>
+      <label>Ảnh sản phẩm<input name="imageFile" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"></label>
+      <p class="product-image-help">Chọn ảnh JPG, PNG hoặc WEBP (tối đa 5 MB). Khi sửa, chỉ cần chọn file mới nếu muốn thay ảnh.</p>
       <label class="product-active-option"><input name="isActive" type="checkbox" checked><span>Hiển thị sản phẩm trên cửa hàng</span></label>
       <p class="product-form-error" role="alert" hidden></p>
       <div class="product-dialog-actions">

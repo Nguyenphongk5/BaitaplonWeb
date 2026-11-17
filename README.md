@@ -28,7 +28,7 @@ Trang chi tiết tại `/product.html?id=<id>` lấy sản phẩm đang bán tr�
 
 Khách chưa đăng nhập vẫn có thể thêm sản phẩm vào giỏ; cần đăng nhập hoặc đăng ký để đặt hàng. Giỏ hàng được lưu trên thiết bị và sẽ mở lại sau khi hoàn tất đăng nhập/đăng ký.
 
-Ảnh sản phẩm và danh mục hiện dùng ảnh chụp lưu cục bộ trong `wwwroot/img`. Ảnh vợt từ Wikimedia Commons: [“Pickleball Paddle 2025”](https://commons.wikimedia.org/wiki/File:Pickleball_Paddle_2025.jpg) của Fakhar Saeed (CC0), [“Pickleball balls and paddles”](https://commons.wikimedia.org/wiki/File:Pickleball_balls_and_paddles.jpg) của E is for Ian và [“Headpickleballracket”](https://commons.wikimedia.org/wiki/File:Headpickleballracket.jpg) của Helloheart (CC BY-SA 4.0; [điều khoản CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)). Ảnh áo và ba lô lấy từ Unsplash theo [Unsplash License](https://unsplash.com/license).
+Ảnh sản phẩm và danh mục hiện dùng ảnh chụp lưu cục bộ trong `wwwroot/img`. Trong admin, ảnh sản phẩm được chọn từ file JPG, PNG hoặc WEBP tối đa 5 MB và lưu trong `wwwroot/uploads/products`; khi sửa sản phẩm, có thể giữ ảnh cũ hoặc chọn file mới. Ảnh vợt từ Wikimedia Commons: [“Pickleball Paddle 2025”](https://commons.wikimedia.org/wiki/File:Pickleball_Paddle_2025.jpg) của Fakhar Saeed (CC0), [“Pickleball balls and paddles”](https://commons.wikimedia.org/wiki/File:Pickleball_balls_and_paddles.jpg) của E is for Ian và [“Headpickleballracket”](https://commons.wikimedia.org/wiki/File:Headpickleballracket.jpg) của Helloheart (CC BY-SA 4.0; [điều khoản CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)). Ảnh áo và ba lô lấy từ Unsplash theo [Unsplash License](https://unsplash.com/license).
 
 ## Khởi tạo tài khoản quản trị
 

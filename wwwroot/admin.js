@@ -183,7 +183,7 @@ async function requestProductApi(path, options = {}) {
   const response = await fetch(path, {
     ...options,
     headers: {
-      ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...(options.body && !(options.body instanceof FormData) ? { "Content-Type": "application/json" } : {}),
       ...(options.headers ?? {})
     }
   });
@@ -333,7 +333,7 @@ function openProductDialog(product = null) {
   productForm.elements.brand.value = product?.brand ?? "";
   productForm.elements.category.value = product?.category ?? "tennis";
   productForm.elements.price.value = product?.price ?? "";
-  productForm.elements.imageUrl.value = product?.imageUrl ?? "";
+  productForm.elements.imageFile.required = !product;
   productForm.elements.badge.value = product?.badge ?? "";
   productForm.elements.stockQuantity.value = product?.stockQuantity ?? 10;
   productForm.elements.isActive.checked = product?.isActive ?? true;
@@ -498,32 +498,47 @@ productForm.addEventListener("submit", async (event) => {
 
   const formData = new FormData(productForm);
   const productId = productForm.dataset.productId;
-  const payload = {
-    name: formData.get("name").trim(),
-    brand: formData.get("brand").trim(),
-    category: formData.get("category"),
-    price: Number(formData.get("price")),
-    imageUrl: formData.get("imageUrl").trim(),
-    badge: formData.get("badge").trim() || null,
-    stockQuantity: Number(formData.get("stockQuantity") || 0),
-    variants: [...productColorGroups.querySelectorAll(".product-color-group")].flatMap((group) => {
-      const color = group.querySelector('[aria-label="Tên màu"]').value.trim();
-      const colorHex = group.querySelector('[aria-label="Mã màu sắc"]').value;
-      return [...group.querySelectorAll(".product-size-row")].map((row) => ({
-        color,
-        colorHex,
-        size: row.querySelector('[aria-label="Size"]').value.trim(),
-        stockQuantity: Number(row.querySelector('[aria-label="Tồn kho size"]').value)
-      }));
-    }),
-    isActive: formData.has("isActive")
-  };
   const saveButton = document.querySelector(".product-save-button");
   saveButton.disabled = true;
   productFormError.hidden = true;
 
   try {
     const token = await getAntiforgeryToken();
+    const imageFile = productForm.elements.imageFile.files[0];
+    let imageUrl = products.find((product) => product.id === Number(productId))?.imageUrl;
+    if (imageFile) {
+      const uploadForm = new FormData();
+      uploadForm.append("image", imageFile);
+      const uploadedImage = await requestProductApi("/api/admin/products/images", {
+        method: "POST",
+        headers: { RequestVerificationToken: token },
+        body: uploadForm
+      });
+      imageUrl = uploadedImage.imageUrl;
+    }
+    if (!imageUrl) throw new Error("Vui lòng chọn ảnh sản phẩm.");
+
+    const payload = {
+      name: formData.get("name").trim(),
+      brand: formData.get("brand").trim(),
+      category: formData.get("category"),
+      price: Number(formData.get("price")),
+      imageUrl,
+      badge: formData.get("badge").trim() || null,
+      stockQuantity: Number(formData.get("stockQuantity") || 0),
+      variants: [...productColorGroups.querySelectorAll(".product-color-group")].flatMap((group) => {
+        const color = group.querySelector('[aria-label="Tên màu"]').value.trim();
+        const colorHex = group.querySelector('[aria-label="Mã màu sắc"]').value;
+        return [...group.querySelectorAll(".product-size-row")].map((row) => ({
+          color,
+          colorHex,
+          size: row.querySelector('[aria-label="Size"]').value.trim(),
+          stockQuantity: Number(row.querySelector('[aria-label="Tồn kho size"]').value)
+        }));
+      }),
+      isActive: formData.has("isActive")
+    };
+
     const savedProduct = await requestProductApi(
       productId ? `/api/admin/products/${productId}` : "/api/admin/products",
       {
